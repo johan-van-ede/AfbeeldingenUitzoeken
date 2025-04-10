@@ -1,0 +1,41 @@
+# .NET build artifacts
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.tmp
+*.log
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio and Rider files
+.vs/
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows shortcuts
+*.lnk
