@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj": {}
+    "C:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj": {}
   },
   "projects": {
-    "c:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj": {
+    "C:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj",
+        "projectUniqueName": "C:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj",
         "projectName": "AfbeeldingenUitzoeken",
-        "projectPath": "c:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj",
+        "projectPath": "C:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\AfbeeldingenUitzoeken.csproj",
         "packagesPath": "C:\\Users\\jovanede\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\obj\\",
+        "outputPath": "C:\\Users\\jovanede\\RiderProjects\\Afbeelding Uitzoeker\\AfbeeldingenUitzoeken\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
