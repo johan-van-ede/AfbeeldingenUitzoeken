@@ -1,4 +1,4 @@
-LibraryPath=C:\Users\jovanede\Downloads\library - Copy
-KeepFolderPath=C:\Users\jovanede\Downloads\keep
-BinFolderPath=C:\Users\jovanede\Downloads\bin
-CheckLaterFolderPath=C:\Users\jovanede\Downloads\later
+LibraryPath=C:\Users\jovanede\OneDrive\Documents\DesignForms_24.0
+KeepFolderPath=C:\Users\jovanede\OneDrive - Infrastructuur Nederland\Documents\My Videos\Leawo
+BinFolderPath=C:\Users\jovanede\OneDrive - Infrastructuur Nederland\Documents\My Pictures
+CheckLaterFolderPath=C:\Users\jovanede\Downloads

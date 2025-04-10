@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AfbeeldingenUitzoeken.Models;
+using AfbeeldingenUitzoeken.Views; // Add reference to Views namespace
 // Explicitly use Windows MessageBox and Application to avoid ambiguity
 using MessageBox = System.Windows.MessageBox;
 using Application = System.Windows.Application;
@@ -197,17 +198,51 @@ namespace AfbeeldingenUitzoeken.ViewModels
             CanGoPrevious = PicturesQueue.Count > 0 && CurrentIndex > 0;
         }
 
-        private void LoadConfigSettings()
+        public bool HasInvalidPaths()
         {
-            var configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "config.txt");            if (File.Exists(configFilePath))
+            bool hasInvalid = false;
+            
+            if (!string.IsNullOrEmpty(LibraryPath) && !Directory.Exists(LibraryPath))
+                hasInvalid = true;
+                
+            if (!string.IsNullOrEmpty(KeepFolderPath) && !Directory.Exists(KeepFolderPath))
+                hasInvalid = true;
+                
+            if (!string.IsNullOrEmpty(BinFolderPath) && !Directory.Exists(BinFolderPath))
+                hasInvalid = true;
+                
+            if (!string.IsNullOrEmpty(CheckLaterFolderPath) && !Directory.Exists(CheckLaterFolderPath))
+                hasInvalid = true;
+
+            return hasInvalid;
+        }        private void ShowSettingsIfInvalidPaths()
+        {
+            if (HasInvalidPaths())
+            {
+                var settingsWindow = new SettingsView();
+                // Only set Owner if MainWindow is already loaded
+                if (Application.Current.MainWindow != null && Application.Current.MainWindow.IsLoaded)
+                {
+                    settingsWindow.Owner = Application.Current.MainWindow;
+                }
+                settingsWindow.ShowDialog();
+            }
+        }
+
+        public void LoadConfigSettings()
+        {
+            var configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "config.txt");
+            if (File.Exists(configFilePath))
             {
                 var configLines = File.ReadAllLines(configFilePath);
                 var settings = configLines.Select(line => line.Split('=')).ToDictionary(parts => parts[0], parts => parts[1]);
-                
+
                 LibraryPath = settings.ContainsKey("LibraryPath") ? settings["LibraryPath"] : string.Empty;
                 KeepFolderPath = settings.ContainsKey("KeepFolderPath") ? settings["KeepFolderPath"] : string.Empty;
                 BinFolderPath = settings.ContainsKey("BinFolderPath") ? settings["BinFolderPath"] : string.Empty;
                 CheckLaterFolderPath = settings.ContainsKey("CheckLaterFolderPath") ? settings["CheckLaterFolderPath"] : string.Empty;
+
+                ShowSettingsIfInvalidPaths();
             }
         }
 

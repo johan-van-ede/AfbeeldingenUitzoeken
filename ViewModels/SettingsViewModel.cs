@@ -16,12 +16,16 @@ namespace AfbeeldingenUitzoeken.ViewModels
 {
     public class SettingsViewModel : INotifyPropertyChanged
     {
-        private string _libraryPath;
-        private string _keepFolderPath;
-        private string _binFolderPath;
-        private string _checkLaterFolderPath;
+        private string _libraryPath = string.Empty;
+        private string _keepFolderPath = string.Empty;
+        private string _binFolderPath = string.Empty;
+        private string _checkLaterFolderPath = string.Empty;
         private bool _isSaveButtonVisible;
         private string _versionInfo;
+        private bool _isLibraryPathInvalid;
+        private bool _isKeepFolderPathInvalid;
+        private bool _isBinFolderPathInvalid;
+        private bool _isCheckLaterFolderPathInvalid;
 
         public string LibraryPath
         {
@@ -29,6 +33,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
             set
             {
                 _libraryPath = value;
+                IsLibraryPathInvalid = !string.IsNullOrEmpty(value) && !Directory.Exists(value);
                 OnPropertyChanged();
                 UpdateSaveButtonVisibility();
             }
@@ -40,6 +45,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
             set
             {
                 _keepFolderPath = value;
+                IsKeepFolderPathInvalid = !string.IsNullOrEmpty(value) && !Directory.Exists(value);
                 OnPropertyChanged();
                 UpdateSaveButtonVisibility();
             }
@@ -51,6 +57,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
             set
             {
                 _binFolderPath = value;
+                IsBinFolderPathInvalid = !string.IsNullOrEmpty(value) && !Directory.Exists(value);
                 OnPropertyChanged();
                 UpdateSaveButtonVisibility();
             }
@@ -62,6 +69,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
             set
             {
                 _checkLaterFolderPath = value;
+                IsCheckLaterFolderPathInvalid = !string.IsNullOrEmpty(value) && !Directory.Exists(value);
                 OnPropertyChanged();
                 UpdateSaveButtonVisibility();
             }
@@ -87,6 +95,46 @@ namespace AfbeeldingenUitzoeken.ViewModels
             }
         }
 
+        public bool IsLibraryPathInvalid
+        {
+            get => _isLibraryPathInvalid;
+            private set
+            {
+                _isLibraryPathInvalid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsKeepFolderPathInvalid
+        {
+            get => _isKeepFolderPathInvalid;
+            private set
+            {
+                _isKeepFolderPathInvalid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsBinFolderPathInvalid
+        {
+            get => _isBinFolderPathInvalid;
+            private set
+            {
+                _isBinFolderPathInvalid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsCheckLaterFolderPathInvalid
+        {
+            get => _isCheckLaterFolderPathInvalid;
+            private set
+            {
+                _isCheckLaterFolderPathInvalid = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand SelectLibraryCommand { get; }
         public ICommand SelectKeepFolderCommand { get; }
         public ICommand SelectBinFolderCommand { get; }
@@ -94,11 +142,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
         public ICommand SaveCommand { get; }
 
         public SettingsViewModel()
-        {            // Initialize fields to avoid null reference exceptions
-            _libraryPath = string.Empty;
-            _keepFolderPath = string.Empty;
-            _binFolderPath = string.Empty;
-            _checkLaterFolderPath = string.Empty;
+        {
             _versionInfo = AfbeeldingenUitzoeken.Models.VersionInfo.VersionWithLabel;
 
             SelectLibraryCommand = new RelayCommand(_ => SelectFolder(path => LibraryPath = path));
@@ -109,7 +153,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
 
             // Load settings from config if available
             LoadConfigSettings();
-        }        private void LoadConfigSettings()
+        }
+
+        private void LoadConfigSettings()
         {
             var configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "config.txt");
             if (File.Exists(configFilePath))
@@ -123,7 +169,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 CheckLaterFolderPath = settings.ContainsKey("CheckLaterFolderPath") ? settings["CheckLaterFolderPath"] : string.Empty;
             }
         }
-          private void SelectFolder(Action<string> setPathAction)
+
+        private void SelectFolder(Action<string> setPathAction)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog
             {
@@ -154,7 +201,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
                     $"KeepFolderPath={KeepFolderPath}",
                     $"BinFolderPath={BinFolderPath}",
                     $"CheckLaterFolderPath={CheckLaterFolderPath}"
-                });                // Update the MainViewModel if accessible
+                });
+
+                // Update the MainViewModel if accessible
                 var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
                 if (mainWindow?.DataContext is MainViewModel mainViewModel)
                 {
@@ -165,7 +214,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
                     mainViewModel.KeepFolderPath = KeepFolderPath;
                     mainViewModel.BinFolderPath = BinFolderPath;
                     mainViewModel.CheckLaterFolderPath = CheckLaterFolderPath;
-                      // Only reload the library if the path has actually changed
+                    
+                    // Only reload the library if the path has actually changed
                     if (libraryPathChanged)
                     {
                         mainViewModel.LibraryPath = LibraryPath;
@@ -189,7 +239,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
                                   !string.IsNullOrEmpty(KeepFolderPath) &&
                                   !string.IsNullOrEmpty(BinFolderPath) &&
                                   !string.IsNullOrEmpty(CheckLaterFolderPath);
-        }        public event PropertyChangedEventHandler? PropertyChanged;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {

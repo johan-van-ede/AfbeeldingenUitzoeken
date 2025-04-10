@@ -8,15 +8,28 @@
         xmlns:viewModels="clr-namespace:AfbeeldingenUitzoeken.ViewModels"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="500"
-        Background="#1E1E1E"><Window.Resources>
+        Background="#1E1E1E">
+    <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
         <!-- Dark Theme Colors -->
-        <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>        <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
+        <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
         <SolidColorBrush x:Key="DarkBorder" Color="#3E3E3E"/>
         <SolidColorBrush x:Key="DarkText" Color="#E0E0E0"/>
         <SolidColorBrush x:Key="GreenAccent" Color="#5CB85C"/>
         <SolidColorBrush x:Key="BlueAccent" Color="#5BC0DE"/>
+        <SolidColorBrush x:Key="WarningColor" Color="#FF4444"/>
+        
+        <!-- Warning Icon Style -->
+        <Style x:Key="WarningIconStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource WarningColor}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="ToolTip" Value="This folder no longer exists"/>
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+        </Style>
         
         <!-- Base Button Style with Consistent Hover Effects -->
         <Style x:Key="UnifiedButtonStyle" TargetType="Button">
@@ -32,7 +45,8 @@
                                 CornerRadius="5"
                                 BorderThickness="0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>                        <ControlTemplate.Triggers>
+                        </Border>
+                        <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#5BC0DE"/>
                                 <Setter Property="Effect">
@@ -71,7 +85,8 @@
         <viewModels:SettingsViewModel />
     </Window.DataContext>
     <Grid Background="{StaticResource DarkBackground}">
-        <StackPanel Margin="20">            <!-- Folder Selection -->
+        <StackPanel Margin="20">
+            <!-- Folder Selection -->
             <TextBlock Text="Source Library (Uit te zoeken afbeeldingen):" 
                       Foreground="{StaticResource DarkText}"
                       Margin="0,0,0,5" />
@@ -79,11 +94,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding LibraryPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />                <Button Command="{Binding SelectLibraryCommand}" 
+                        Grid.Column="0" />
+                <Button Command="{Binding SelectLibraryCommand}" 
                        Grid.Column="1"
                        Style="{StaticResource UnifiedButtonStyle}"
                        Background="#3E3E3E"
@@ -92,6 +109,10 @@
                        ToolTip="Select folder">
                     <TextBlock Text="📂" FontSize="14"/>
                 </Button>
+                <TextBlock Text="⚠" 
+                          Grid.Column="2"
+                          Style="{StaticResource WarningIconStyle}"
+                          Visibility="{Binding IsLibraryPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
             
             <TextBlock Text="Keep Folder:" 
@@ -101,11 +122,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding KeepFolderPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />                <Button Command="{Binding SelectKeepFolderCommand}" 
+                        Grid.Column="0" />
+                <Button Command="{Binding SelectKeepFolderCommand}" 
                        Grid.Column="1"
                        Style="{StaticResource UnifiedButtonStyle}"
                        Background="#3E3E3E"
@@ -114,6 +137,10 @@
                        ToolTip="Select folder">
                     <TextBlock Text="📂" FontSize="14"/>
                 </Button>
+                <TextBlock Text="⚠" 
+                          Grid.Column="2"
+                          Style="{StaticResource WarningIconStyle}"
+                          Visibility="{Binding IsKeepFolderPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
 
             <TextBlock Text="Bin Folder:" 
@@ -123,11 +150,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding BinFolderPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />                <Button Command="{Binding SelectBinFolderCommand}" 
+                        Grid.Column="0" />
+                <Button Command="{Binding SelectBinFolderCommand}" 
                        Grid.Column="1"
                        Style="{StaticResource UnifiedButtonStyle}"
                        Background="#3E3E3E"
@@ -136,6 +165,10 @@
                        ToolTip="Select folder">
                     <TextBlock Text="📂" FontSize="14"/>
                 </Button>
+                <TextBlock Text="⚠" 
+                          Grid.Column="2"
+                          Style="{StaticResource WarningIconStyle}"
+                          Visibility="{Binding IsBinFolderPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
 
             <TextBlock Text="Check Later Folder:" 
@@ -145,11 +178,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding CheckLaterFolderPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />                <Button Command="{Binding SelectCheckLaterFolderCommand}" 
+                        Grid.Column="0" />
+                <Button Command="{Binding SelectCheckLaterFolderCommand}" 
                        Grid.Column="1"
                        Style="{StaticResource UnifiedButtonStyle}"
                        Background="#3E3E3E"
@@ -158,7 +193,13 @@
                        ToolTip="Select folder">
                     <TextBlock Text="📂" FontSize="14"/>
                 </Button>
-            </Grid>            <!-- Save Button -->
+                <TextBlock Text="⚠" 
+                          Grid.Column="2"
+                          Style="{StaticResource WarningIconStyle}"
+                          Visibility="{Binding IsCheckLaterFolderPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </Grid>
+            
+            <!-- Save Button -->
             <Button Content="Save" 
                    Command="{Binding SaveCommand}" 
                    Width="120" 
