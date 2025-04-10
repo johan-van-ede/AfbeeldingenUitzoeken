@@ -4,39 +4,50 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AfbeeldingenUitzoeken.Views"
+        xmlns:app="clr-namespace:AfbeeldingenUitzoeken"
         xmlns:viewModels="clr-namespace:AfbeeldingenUitzoeken.ViewModels"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="500"
-        Background="#1E1E1E">
-    <Window.Resources>
+        Background="#1E1E1E"><Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
         <!-- Dark Theme Colors -->
-        <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>
-        <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
+        <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>        <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
         <SolidColorBrush x:Key="DarkBorder" Color="#3E3E3E"/>
         <SolidColorBrush x:Key="DarkText" Color="#E0E0E0"/>
         <SolidColorBrush x:Key="GreenAccent" Color="#5CB85C"/>
         <SolidColorBrush x:Key="BlueAccent" Color="#5BC0DE"/>
         
-        <!-- Button Style -->
-        <Style x:Key="DarkButtonStyle" TargetType="Button">
+        <!-- Base Button Style with Consistent Hover Effects -->
+        <Style x:Key="UnifiedButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#3E3E3E"/>
             <Setter Property="Foreground" Value="#E0E0E0"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="3"
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="5"
                                 BorderThickness="0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
+                        </Border>                        <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#5BC0DE"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="1" Opacity="0.7"/>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Opacity" Value="0.9"/>
-                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5"/>
@@ -72,10 +83,10 @@
                 <TextBox Text="{Binding LibraryPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />
-                <Button Command="{Binding SelectLibraryCommand}" 
+                        Grid.Column="0" />                <Button Command="{Binding SelectLibraryCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource DarkButtonStyle}"
+                       Style="{StaticResource UnifiedButtonStyle}"
+                       Background="#3E3E3E"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -94,10 +105,10 @@
                 <TextBox Text="{Binding KeepFolderPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />
-                <Button Command="{Binding SelectKeepFolderCommand}" 
+                        Grid.Column="0" />                <Button Command="{Binding SelectKeepFolderCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource DarkButtonStyle}"
+                       Style="{StaticResource UnifiedButtonStyle}"
+                       Background="#3E3E3E"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -116,10 +127,10 @@
                 <TextBox Text="{Binding BinFolderPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />
-                <Button Command="{Binding SelectBinFolderCommand}" 
+                        Grid.Column="0" />                <Button Command="{Binding SelectBinFolderCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource DarkButtonStyle}"
+                       Style="{StaticResource UnifiedButtonStyle}"
+                       Background="#3E3E3E"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -138,18 +149,16 @@
                 <TextBox Text="{Binding CheckLaterFolderPath}" 
                         IsReadOnly="True"
                         Style="{StaticResource DarkTextBoxStyle}"
-                        Grid.Column="0" />
-                <Button Command="{Binding SelectCheckLaterFolderCommand}" 
+                        Grid.Column="0" />                <Button Command="{Binding SelectCheckLaterFolderCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource DarkButtonStyle}"
+                       Style="{StaticResource UnifiedButtonStyle}"
+                       Background="#3E3E3E"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
                     <TextBlock Text="📂" FontSize="14"/>
                 </Button>
-            </Grid>
-
-            <!-- Save Button -->
+            </Grid>            <!-- Save Button -->
             <Button Content="Save" 
                    Command="{Binding SaveCommand}" 
                    Width="120" 
@@ -157,8 +166,16 @@
                    Background="{StaticResource GreenAccent}"
                    HorizontalAlignment="Right" 
                    Margin="0,20,0,0" 
-                   Style="{StaticResource DarkButtonStyle}"
+                   Style="{StaticResource UnifiedButtonStyle}"
                    Visibility="{Binding IsSaveButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            
+            <!-- Version Information -->
+            <TextBlock Text="{Binding VersionInfo}" 
+                      Foreground="{StaticResource DarkText}"
+                      Opacity="0.6"
+                      FontSize="11"
+                      HorizontalAlignment="Right"
+                      Margin="0,10,0,0" />
         </StackPanel>
     </Grid>
 </Window>

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using AfbeeldingenUitzoeken.Models;
 using AfbeeldingenUitzoeken.Views;
 // Explicitly use Windows MessageBox and Application to avoid ambiguity
 using MessageBox = System.Windows.MessageBox;
@@ -20,6 +21,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
         private string _binFolderPath;
         private string _checkLaterFolderPath;
         private bool _isSaveButtonVisible;
+        private string _versionInfo;
 
         public string LibraryPath
         {
@@ -75,6 +77,16 @@ namespace AfbeeldingenUitzoeken.ViewModels
             }
         }
 
+        public string VersionInfo
+        {
+            get => _versionInfo;
+            private set
+            {
+                _versionInfo = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand SelectLibraryCommand { get; }
         public ICommand SelectKeepFolderCommand { get; }
         public ICommand SelectBinFolderCommand { get; }
@@ -82,12 +94,12 @@ namespace AfbeeldingenUitzoeken.ViewModels
         public ICommand SaveCommand { get; }
 
         public SettingsViewModel()
-        {
-            // Initialize fields to avoid null reference exceptions
+        {            // Initialize fields to avoid null reference exceptions
             _libraryPath = string.Empty;
             _keepFolderPath = string.Empty;
             _binFolderPath = string.Empty;
             _checkLaterFolderPath = string.Empty;
+            _versionInfo = AfbeeldingenUitzoeken.Models.VersionInfo.VersionWithLabel;
 
             SelectLibraryCommand = new RelayCommand(_ => SelectFolder(path => LibraryPath = path));
             SelectKeepFolderCommand = new RelayCommand(_ => SelectFolder(path => KeepFolderPath = path));
