@@ -1,0 +1,4 @@
+LibraryPath=C:\Users\jovanede\Downloads\library - Copy
+KeepFolderPath=C:\Users\jovanede\Downloads\keep
+BinFolderPath=C:\Users\jovanede\Downloads\bin
+CheckLaterFolderPath=C:\Users\jovanede\Downloads\later
