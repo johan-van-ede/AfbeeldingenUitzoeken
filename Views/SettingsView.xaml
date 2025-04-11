@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:AfbeeldingenUitzoeken.Views"
         xmlns:app="clr-namespace:AfbeeldingenUitzoeken"
         xmlns:viewModels="clr-namespace:AfbeeldingenUitzoeken.ViewModels"
+        xmlns:converters="clr-namespace:AfbeeldingenUitzoeken.Converters"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="500"
         Background="#1E1E1E">

@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using AfbeeldingenUitzoeken.Models;
 using AfbeeldingenUitzoeken.Views;
 using AfbeeldingenUitzoeken.Helpers;
@@ -25,8 +26,24 @@ namespace AfbeeldingenUitzoeken.ViewModels
         private int _currentIndex = 0;
         private bool _canGoNext = false;
         private bool _canGoPrevious = false;
+        private readonly BackgroundImageLoader _backgroundLoader;
 
         public ObservableCollection<PictureModel> PicturesQueue { get; set; } = new ObservableCollection<PictureModel>();
+        
+        // Loading indicator properties
+        private bool _isLoading = false;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         
         public int CurrentIndex
         {
@@ -126,7 +143,44 @@ namespace AfbeeldingenUitzoeken.ViewModels
             PreviousPictureCommand = new RelayCommand(_ => PreviousPicture(), _ => CanGoPrevious);
             SelectImageCommand = new RelayCommand(param => SelectImage(param as PictureModel));
 
+            // Initialize the background image loader with event handling
+            _backgroundLoader = new BackgroundImageLoader();
+            _backgroundLoader.ImageLoaded += OnImageLoaded;
+
             LoadConfigSettings();
+        }
+        
+        // Event handler for when images are loaded in the background
+        private void OnImageLoaded(PictureModel picture)
+        {
+            // Since this event comes from a background thread, we need to use the Dispatcher
+            // to safely update the UI collection
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (picture != null)
+                {
+                    PicturesQueue.Add(picture);
+                    
+                    // Update counters
+                    OnPropertyChanged(nameof(RemainingImageCount));
+                    OnPropertyChanged(nameof(ProcessedPercentage));
+                    
+                    // If this is the first image and we don't have a current picture yet,
+                    // set it as the current picture
+                    if (PicturesQueue.Count == 1 && CurrentPicture == null)
+                    {
+                        CurrentIndex = 0;
+                        CurrentPicture = picture;
+                        UpdateNavigationState();
+                    }
+                }
+                
+                // If we've loaded all expected images, turn off the loading indicator
+                if (PicturesQueue.Count >= _totalImageCount)
+                {
+                    IsLoading = false;
+                }
+            });
         }
         
         private void SelectImage(PictureModel? picture)
@@ -290,7 +344,14 @@ namespace AfbeeldingenUitzoeken.ViewModels
             if (string.IsNullOrEmpty(LibraryPath) || !Directory.Exists(LibraryPath))
                 return;
 
+            // Stop any previous loading process
+            _backgroundLoader.Stop();
+            
+            // Clear existing pictures
             PicturesQueue.Clear();
+            
+            // Set loading indicator
+            IsLoading = true;
             
             // Get all supported media files using our MediaExtensions helper
             var mediaFiles = Directory.GetFiles(LibraryPath, "*.*", SearchOption.AllDirectories)
@@ -304,74 +365,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
             OnPropertyChanged(nameof(RemainingImageCount));
             OnPropertyChanged(nameof(ProcessedPercentage));
 
-            foreach (var file in mediaFiles)
-            {
-                try
-                {
-                    bool isVideo = MediaExtensions.IsVideo(file);
-                    
-                    // Create thumbnail for gallery (for both images and videos)
-                    var thumbnail = new BitmapImage();
-                    thumbnail.BeginInit();
-                    thumbnail.CacheOption = BitmapCacheOption.OnLoad;
-                    thumbnail.UriSource = new Uri(file);
-                    thumbnail.DecodePixelWidth = 150; // Constrain width for thumbnails
-                    thumbnail.EndInit();
-                    thumbnail.Freeze(); // Optimize for UI thread
-                    
-                    // Get file information
-                    var fileInfo = new FileInfo(file);
-                    
-                    int width = 0;
-                    int height = 0;
-                    
-                    if (!isVideo)
-                    {
-                        // Get image resolution by loading the full image
-                        var fullImage = new BitmapImage();
-                        fullImage.BeginInit();
-                        fullImage.CacheOption = BitmapCacheOption.OnLoad;
-                        fullImage.UriSource = new Uri(file);
-                        fullImage.EndInit();
-                        
-                        width = fullImage.PixelWidth;
-                        height = fullImage.PixelHeight;
-                    }
-                    
-                    PicturesQueue.Add(new PictureModel
-                    {
-                        FilePath = file,
-                        FileName = Path.GetFileName(file),
-                        Thumbnail = thumbnail,
-                        CreationDate = fileInfo.CreationTime,
-                        FileSize = fileInfo.Length,
-                        Width = width,
-                        Height = height,
-                        IsVideo = isVideo,
-                        VideoDuration = isVideo ? TimeSpan.Zero : null // Will be updated when video is loaded
-                    });
-                }
-                catch (Exception ex)
-                {
-                    // Skip files that can't be loaded
-                    MessageBox.Show($"Error loading media file {file}: {ex.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-            
-            if (PicturesQueue.Count > 0)
-            {
-                CurrentIndex = 0;
-                CurrentPicture = PicturesQueue[0];
-                UpdateNavigationState();
-            }
-            else
-            {
-                // If no images found, clear the current image display
-                CurrentPicture = null;
-                CurrentImage = null;
-                CurrentIndex = 0;
-                UpdateNavigationState();
-            }
+            // Queue all files for background loading
+            _backgroundLoader.QueueFiles(mediaFiles);
         }
 
         private void KeepPicture()
@@ -397,10 +392,14 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 MovePicture(CurrentPicture, CheckLaterFolderPath);
             }
         }
-        
-        private void MovePicture(PictureModel picture, string destinationFolder)
+          private void MovePicture(PictureModel picture, string destinationFolder)
         {
             if (picture == null || string.IsNullOrEmpty(destinationFolder)) return;
+            if (string.IsNullOrEmpty(picture.FilePath) || !File.Exists(picture.FilePath)) 
+            {
+                MessageBox.Show("The file does not exist or the path is invalid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             try
             {
@@ -410,7 +409,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 }
 
                 // Ensure filename is not null
-                string fileName = picture.FileName ?? Path.GetFileName(picture.FilePath ?? string.Empty);
+                string fileName = picture.FileName ?? Path.GetFileName(picture.FilePath);
                 if (string.IsNullOrEmpty(fileName))
                 {
                     MessageBox.Show("Invalid file name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -432,7 +431,10 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 }
 
                 // Move the file
-                File.Move(picture.FilePath ?? string.Empty, destinationPath);
+                File.Move(picture.FilePath, destinationPath);
+                
+                // Save current index before removing the picture
+                int currentIndexBeforeRemoval = CurrentIndex;
                 
                 // Remove the picture from the queue
                 PicturesQueue.Remove(picture);
@@ -445,7 +447,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 if (PicturesQueue.Count > 0)
                 {
                     // If we removed the last image, move to the previous one
-                    if (CurrentIndex >= PicturesQueue.Count)
+                    // If we removed an item before the current index, we need to adjust the index
+                    if (currentIndexBeforeRemoval >= PicturesQueue.Count)
                     {
                         CurrentIndex = PicturesQueue.Count - 1;
                     }
@@ -470,11 +473,12 @@ namespace AfbeeldingenUitzoeken.ViewModels
             }
         }
         
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public new event PropertyChangedEventHandler? PropertyChanged;
         
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected override void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            base.OnPropertyChanged(propertyName);
         }
         
         public void CheckAndPromptToEmptyBinFolder()
@@ -511,6 +515,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
                     }
                 }
             }
+            
+            // Clear the thumbnail cache when application is closing to free memory
+            ImageLoader.ClearCache();
         }
     }
 }

@@ -1,3 +1,6 @@
+C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.exe
+c:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.deps.json
+c:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.runtimeconfig.json
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.dll
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.pdb
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\MainWindow.g.cs
@@ -6,9 +9,6 @@ C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\D
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\GeneratedInternalTypeHelper.g.cs
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\AfbeeldingenUitzoeken_MarkupCompile.cache
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\AfbeeldingenUitzoeken_MarkupCompile.lref
-C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.exe
-C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.deps.json
-C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\bin\Debug\net9.0-windows\AfbeeldingenUitzoeken.runtimeconfig.json
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\App.baml
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\MainWindow.baml
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\Views\SettingsView.baml
@@ -21,5 +21,5 @@ C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\D
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\AfbeeldingenUitzoeken.dll
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\refint\AfbeeldingenUitzoeken.dll
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\AfbeeldingenUitzoeken.pdb
-C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\AfbeeldingenUitzoeken.genruntimeconfig.cache
-C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\ref\AfbeeldingenUitzoeken.dll
+c:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\AfbeeldingenUitzoeken.genruntimeconfig.cache
+c:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\Debug\net9.0-windows\ref\AfbeeldingenUitzoeken.dll

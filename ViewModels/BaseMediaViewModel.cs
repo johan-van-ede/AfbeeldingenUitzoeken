@@ -82,14 +82,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
                         
                         if (!IsCurrentItemVideo && !string.IsNullOrEmpty(value.FilePath))
                         {
-                            // Handle image file
-                            var bitmap = new BitmapImage();
-                            bitmap.BeginInit();
-                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                            bitmap.UriSource = new Uri(value.FilePath);
-                            bitmap.EndInit();
-                            bitmap.Freeze(); // Optimize for UI thread
-                            CurrentImage = bitmap;
+                            // Handle image file - use the ImageLoader helper for better performance
+                            CurrentImage = ImageLoader.LoadImage(value.FilePath);
                         }
                         else
                         {

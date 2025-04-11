@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AfbeeldingenUitzoeken"
+        xmlns:converters="clr-namespace:AfbeeldingenUitzoeken.Converters"
         mc:Ignorable="d"
         Title="Picture Sorting" Height="650" Width="1000"
         Background="#1E1E1E">      <Window.Resources>
@@ -17,10 +18,11 @@
         <SolidColorBrush x:Key="BlueAccent" Color="#5BC0DE"/>
         
         <!-- Value Converters -->
-        <local:BrightnessConverter x:Key="BrightnessConverter" BrightnessFactor="1.2"/>
+        <converters:BrightnessConverter x:Key="BrightnessConverter" BrightnessFactor="1.2"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
-        <local:MediaTypeIconConverter x:Key="MediaTypeIconConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:MediaTypeIconConverter x:Key="MediaTypeIconConverter"/>
+        <converters:LoadingOpacityConverter x:Key="LoadingOpacityConverter"/>
           <!-- Base Button Style with Consistent Hover Effects -->
         <Style x:Key="UnifiedButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#3E3E3E"/>
@@ -96,11 +98,33 @@
             </Grid.RowDefinitions>
             
             <Border Grid.Row="0" BorderBrush="{StaticResource DarkBorder}" BorderThickness="0,0,1,0" Margin="10,10,5,0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding PicturesQueue}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.SelectImageCommand, 
+                <Grid>
+                    <!-- Loading indicator overlay -->
+                    <Border Background="#80000000" 
+                           Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Stretch">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="Loading images..." 
+                                      Foreground="{StaticResource DarkText}"
+                                      FontSize="14"
+                                      Margin="0,0,0,10"
+                                      HorizontalAlignment="Center"/>
+                            <ProgressBar IsIndeterminate="True" 
+                                       Width="150" 
+                                       Height="15"
+                                       Background="#3E3E3E"
+                                       Foreground="{StaticResource BlueAccent}"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Image thumbnails scrollview -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                 Opacity="{Binding IsLoading, Converter={StaticResource LoadingOpacityConverter}, ConverterParameter=0.6}">
+                        <ItemsControl ItemsSource="{Binding PicturesQueue}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.SelectImageCommand, 
                                                   RelativeSource={RelativeSource FindAncestor, 
                                                   AncestorType={x:Type ItemsControl}}}"
                                         CommandParameter="{Binding}"
@@ -110,19 +134,19 @@
                                         Margin="5"
                                         Width="158"
                                         Height="136">
-                                    <Border Padding="3" BorderBrush="{StaticResource DarkBorder}" Background="{StaticResource DarkSecondary}" BorderThickness="1" CornerRadius="3"
+                                        <Border Padding="3" BorderBrush="{StaticResource DarkBorder}" Background="{StaticResource DarkSecondary}" BorderThickness="1" CornerRadius="3"
                                             Width="150" HorizontalAlignment="Center">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="100" />
-                                                <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>                                            <Image Grid.Row="0" 
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="100" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>                                            <Image Grid.Row="0" 
                                                    Source="{Binding Thumbnail}" 
                                                    Stretch="Uniform" 
                                                    MaxHeight="100" 
                                                    MaxWidth="150"
                                                    Margin="2" />
-                                            <TextBlock Text="{Binding Converter={StaticResource MediaTypeIconConverter}}"
+                                                <TextBlock Text="{Binding Converter={StaticResource MediaTypeIconConverter}}"
                                                      FontSize="16"
                                                      HorizontalAlignment="Right"
                                                      VerticalAlignment="Top"
@@ -131,20 +155,21 @@
                                                      Background="#80000000"
                                                      Padding="2,0,2,0"
                                                      Visibility="{Binding IsVideo, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                            <TextBlock Grid.Row="1" 
+                                                <TextBlock Grid.Row="1" 
                                                       Text="{Binding FileName}" 
                                                       TextTrimming="CharacterEllipsis"
                                                       TextWrapping="NoWrap"
                                                       FontSize="10"
                                                       Foreground="{StaticResource DarkText}"
                                                       Margin="2" />
-                                        </Grid>
-                                    </Border>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                                            </Grid>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
             </Border>
             
             <!-- Queue Progress Information Below Thumbnails -->
