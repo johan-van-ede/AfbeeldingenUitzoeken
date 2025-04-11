@@ -15,4 +15,20 @@
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
+  
+  <!-- Clear out default globs -->
+  <ItemGroup>
+    <Page Remove="MainWindow.xaml" />
+    <Page Remove="Views\SettingsView.xaml" />
+  </ItemGroup>
+
+  <!-- Add them back explicitly -->
+  <ItemGroup>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
 </Project>

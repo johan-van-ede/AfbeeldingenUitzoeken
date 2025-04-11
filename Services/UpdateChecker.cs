@@ -4,63 +4,86 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using AfbeeldingenUitzoeken.Models;
+using AfbeeldingenUitzoeken.Views;
 
 namespace AfbeeldingenUitzoeken.Services
 {
     public class UpdateChecker
     {
-        private readonly string _updateUrl;
+        private readonly string _updateServerUrl;
         private readonly HttpClient _httpClient;
 
-        /// <summary>
-        /// Creates a new instance of the UpdateChecker
-        /// </summary>
-        /// <param name="updateUrl">URL to the version information JSON file</param>
-        public UpdateChecker(string updateUrl)
+        // Update model class
+        public class UpdateInfo
         {
-            _updateUrl = updateUrl;
+            public string? Version { get; set; }
+            public string? DownloadUrl { get; set; }
+            public string? ReleaseNotes { get; set; }
+            public DateTime ReleaseDate { get; set; }
+        }
+
+        public UpdateChecker(string updateServerUrl)
+        {
+            _updateServerUrl = updateServerUrl;
             _httpClient = new HttpClient();
         }
 
         /// <summary>
-        /// Check if an update is available
+        /// Checks if an update is available by comparing the current version with the latest version from the server
         /// </summary>
-        /// <returns>True if an update is available, false otherwise</returns>
-        public async Task<(bool IsUpdateAvailable, Version LatestVersion, string DownloadUrl)> CheckForUpdateAsync()
+        /// <returns>Tuple containing: isUpdateAvailable, latestVersion, and downloadUrl</returns>
+        public async Task<(bool isUpdateAvailable, string latestVersion, string downloadUrl)> CheckForUpdateAsync()
         {
             try
             {
-                var response = await _httpClient.GetStringAsync(_updateUrl);
-                var versionInfo = JsonSerializer.Deserialize<VersionResponse>(response);
-
-                if (versionInfo == null)
-                    return (false, VersionInfo.CurrentVersion, string.Empty);
-
-                var latestVersion = new Version(versionInfo.Version);
-                var currentVersion = VersionInfo.CurrentVersion;
-
-                // Compare versions
-                bool isUpdateAvailable = latestVersion > currentVersion;
-
-                return (isUpdateAvailable, latestVersion, versionInfo.DownloadUrl);
+                // Get JSON from the update server
+                var response = await _httpClient.GetStringAsync(_updateServerUrl);
+                
+                // Parse the JSON response
+                using var jsonDoc = JsonDocument.Parse(response);
+                var root = jsonDoc.RootElement;
+                
+                // Extract version and download URL
+                var latestVersionString = root.GetProperty("Version").GetString() ?? string.Empty;
+                var downloadUrl = root.GetProperty("DownloadUrl").GetString() ?? string.Empty;
+                
+                // Parse the server version and compare with current version
+                if (Version.TryParse(latestVersionString, out var latestVersion) && !string.IsNullOrEmpty(downloadUrl))
+                {
+                    var currentVersion = Models.VersionInfo.CurrentVersion;
+                    
+                    // If server version is greater than current version, an update is available
+                    return (latestVersion > currentVersion, latestVersionString, downloadUrl);
+                }
+                
+                return (false, string.Empty, string.Empty);
             }
             catch (Exception ex)
             {
-                // Log the error but don't crash the application
                 Console.WriteLine($"Error checking for updates: {ex.Message}");
-                return (false, VersionInfo.CurrentVersion, string.Empty);
+                return (false, string.Empty, string.Empty);
             }
         }
-    }
 
-    /// <summary>
-    /// Represents the JSON response from the update server
-    /// </summary>
-    public class VersionResponse
-    {
-        public string Version { get; set; }
-        public string DownloadUrl { get; set; }
-        public string ReleaseNotes { get; set; }
-        public DateTime ReleaseDate { get; set; }
+        /// <summary>
+        /// Shows the update notification window with the version information
+        /// </summary>
+        public void ShowUpdateNotification(string currentVersion, string newVersion, string downloadUrl)
+        {
+            if (string.IsNullOrEmpty(downloadUrl))
+            {
+                return; // Don't show notification if downloadUrl is empty
+            }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                var notificationWindow = new UpdateNotificationWindow(
+                    currentVersion,
+                    newVersion,
+                    downloadUrl);
+                
+                notificationWindow.Show();
+            });
+        }
     }
 }

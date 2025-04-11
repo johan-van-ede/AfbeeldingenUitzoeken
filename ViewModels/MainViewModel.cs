@@ -8,16 +8,16 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using AfbeeldingenUitzoeken.Models;
-using AfbeeldingenUitzoeken.Views; // Add reference to Views namespace
+using AfbeeldingenUitzoeken.Views;
+using AfbeeldingenUitzoeken.Helpers;
 // Explicitly use Windows MessageBox and Application to avoid ambiguity
 using MessageBox = System.Windows.MessageBox;
 using Application = System.Windows.Application;
 
 namespace AfbeeldingenUitzoeken.ViewModels
-{    public class MainViewModel : INotifyPropertyChanged
+{
+    public class MainViewModel : BaseMediaViewModel
     {
-        private PictureModel? _currentPicture;
-        private BitmapImage? _currentImage;
         private string _libraryPath = string.Empty;
         private string _keepFolderPath = string.Empty;
         private string _binFolderPath = string.Empty;
@@ -50,7 +50,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 _canGoNext = value;
                 OnPropertyChanged();
             }
-        }        public bool CanGoPrevious
+        }
+
+        public bool CanGoPrevious
         {
             get => _canGoPrevious;
             private set
@@ -60,42 +62,7 @@ namespace AfbeeldingenUitzoeken.ViewModels
             }
         }
 
-        public PictureModel? CurrentPicture
-        {
-            get => _currentPicture;
-            set
-            {
-                _currentPicture = value;
-                OnPropertyChanged();
-                if (value != null && File.Exists(value.FilePath))
-                {
-                    try 
-                    {
-                        var bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.UriSource = new Uri(value.FilePath);
-                        bitmap.EndInit();
-                        bitmap.Freeze(); // Optimize for UI thread
-                        CurrentImage = bitmap;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error loading image: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-        }
-
-        public BitmapImage? CurrentImage
-        {
-            get => _currentImage;
-            set
-            {
-                _currentImage = value;
-                OnPropertyChanged();
-            }
-        }        public string LibraryPath
+        public string LibraryPath
         {
             get => _libraryPath;
             set
@@ -125,7 +92,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
         {
             get => _binFolderPath;
             set
-            {                _binFolderPath = value;
+            {
+                _binFolderPath = value;
                 OnPropertyChanged();
             }
         }
@@ -160,7 +128,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
 
             LoadConfigSettings();
         }
-          private void SelectImage(PictureModel? picture)
+        
+        private void SelectImage(PictureModel? picture)
         {
             if (picture != null)
             {
@@ -215,7 +184,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 hasInvalid = true;
 
             return hasInvalid;
-        }        private void ShowSettingsIfInvalidPaths()
+        }
+        
+        private void ShowSettingsIfInvalidPaths()
         {
             if (HasInvalidPaths())
             {
@@ -244,6 +215,10 @@ namespace AfbeeldingenUitzoeken.ViewModels
 
                 ShowSettingsIfInvalidPaths();
             }
+            else
+            {
+                ShowSettingsIfInvalidPaths();
+            }
         }
 
         private int _totalImageCount;
@@ -262,8 +237,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 }
             }
         }
-          public int RemainingImageCount => PicturesQueue?.Count ?? 0;
-          
+        
+        public int RemainingImageCount => PicturesQueue?.Count ?? 0;
+        
         public string ProcessedPercentage
         {
             get
@@ -285,11 +261,11 @@ namespace AfbeeldingenUitzoeken.ViewModels
             }
         }
         
-        private void UpdateImageCounts(List<string> imageFiles)
+        private void UpdateImageCounts(List<string> mediaFiles)
         {
             // Reset both counts to ensure percentage starts at 0% for a new folder
-            _initialImageCount = imageFiles.Count;
-            TotalImageCount = imageFiles.Count;
+            _initialImageCount = mediaFiles.Count;
+            TotalImageCount = mediaFiles.Count;
             
             // Ensure progress percentage is updated
             OnPropertyChanged(nameof(RemainingImageCount));
@@ -301,12 +277,12 @@ namespace AfbeeldingenUitzoeken.ViewModels
             if (string.IsNullOrEmpty(LibraryPath) || !Directory.Exists(LibraryPath))
                 return;
                 
-            var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
-            var imageFiles = Directory.GetFiles(LibraryPath, "*.*", SearchOption.AllDirectories)
-                .Where(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()))
+            // Get all supported media files using our MediaExtensions helper
+            var mediaFiles = Directory.GetFiles(LibraryPath, "*.*", SearchOption.AllDirectories)
+                .Where(file => MediaExtensions.IsSupportedMedia(file))
                 .ToList();
                 
-            UpdateImageCounts(imageFiles);
+            UpdateImageCounts(mediaFiles);
         }
         
         private void LoadImagesFromLibrary()
@@ -316,23 +292,25 @@ namespace AfbeeldingenUitzoeken.ViewModels
 
             PicturesQueue.Clear();
             
-            var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
-            var imageFiles = Directory.GetFiles(LibraryPath, "*.*", SearchOption.AllDirectories)
-                .Where(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()))
+            // Get all supported media files using our MediaExtensions helper
+            var mediaFiles = Directory.GetFiles(LibraryPath, "*.*", SearchOption.AllDirectories)
+                .Where(file => MediaExtensions.IsSupportedMedia(file))
                 .ToList();
                 
-            // Update the counters for the new image library
-            UpdateImageCounts(imageFiles);
+            // Update the counters for the new media library
+            UpdateImageCounts(mediaFiles);
             
             // Ensure progress percentage is updated
             OnPropertyChanged(nameof(RemainingImageCount));
             OnPropertyChanged(nameof(ProcessedPercentage));
 
-            foreach (var file in imageFiles)
+            foreach (var file in mediaFiles)
             {
                 try
                 {
-                    // Create thumbnail for gallery
+                    bool isVideo = MediaExtensions.IsVideo(file);
+                    
+                    // Create thumbnail for gallery (for both images and videos)
                     var thumbnail = new BitmapImage();
                     thumbnail.BeginInit();
                     thumbnail.CacheOption = BitmapCacheOption.OnLoad;
@@ -344,12 +322,21 @@ namespace AfbeeldingenUitzoeken.ViewModels
                     // Get file information
                     var fileInfo = new FileInfo(file);
                     
-                    // Get image resolution by loading the full image
-                    var fullImage = new BitmapImage();
-                    fullImage.BeginInit();
-                    fullImage.CacheOption = BitmapCacheOption.OnLoad;
-                    fullImage.UriSource = new Uri(file);
-                    fullImage.EndInit();
+                    int width = 0;
+                    int height = 0;
+                    
+                    if (!isVideo)
+                    {
+                        // Get image resolution by loading the full image
+                        var fullImage = new BitmapImage();
+                        fullImage.BeginInit();
+                        fullImage.CacheOption = BitmapCacheOption.OnLoad;
+                        fullImage.UriSource = new Uri(file);
+                        fullImage.EndInit();
+                        
+                        width = fullImage.PixelWidth;
+                        height = fullImage.PixelHeight;
+                    }
                     
                     PicturesQueue.Add(new PictureModel
                     {
@@ -358,13 +345,16 @@ namespace AfbeeldingenUitzoeken.ViewModels
                         Thumbnail = thumbnail,
                         CreationDate = fileInfo.CreationTime,
                         FileSize = fileInfo.Length,
-                        Width = fullImage.PixelWidth,
-                        Height = fullImage.PixelHeight
-                    });                }
+                        Width = width,
+                        Height = height,
+                        IsVideo = isVideo,
+                        VideoDuration = isVideo ? TimeSpan.Zero : null // Will be updated when video is loaded
+                    });
+                }
                 catch (Exception ex)
                 {
-                    // Skip files that can't be loaded as images
-                    MessageBox.Show($"Error loading image {file}: {ex.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    // Skip files that can't be loaded
+                    MessageBox.Show($"Error loading media file {file}: {ex.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             
@@ -390,7 +380,9 @@ namespace AfbeeldingenUitzoeken.ViewModels
             {
                 MovePicture(CurrentPicture, KeepFolderPath);
             }
-        }        private void ThrowAwayPicture()
+        }
+        
+        private void ThrowAwayPicture()
         {
             if (CurrentPicture != null && !string.IsNullOrEmpty(BinFolderPath))
             {
@@ -411,81 +403,65 @@ namespace AfbeeldingenUitzoeken.ViewModels
             if (picture == null || string.IsNullOrEmpty(destinationFolder)) return;
 
             try
-            {                if (!Directory.Exists(destinationFolder))
+            {
+                if (!Directory.Exists(destinationFolder))
                 {
                     Directory.CreateDirectory(destinationFolder);
                 }
 
                 // Ensure filename is not null
                 string fileName = picture.FileName ?? Path.GetFileName(picture.FilePath ?? string.Empty);
-                string filePath = picture.FilePath ?? string.Empty;
-                
-                if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) 
+                if (string.IsNullOrEmpty(fileName))
                 {
-                    MessageBox.Show("Cannot move file: Source file path is invalid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Invalid file name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 string destinationPath = Path.Combine(destinationFolder, fileName);
-                File.Copy(filePath, destinationPath, true);
-                File.Delete(filePath);
+                int counter = 1;
+
+                // If file already exists, add a number to the filename to make it unique
+                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+                string extension = Path.GetExtension(fileName);
                 
-                int currentIdx = PicturesQueue.IndexOf(picture);
+                while (File.Exists(destinationPath))
+                {
+                    fileName = $"{fileNameWithoutExtension}_{counter}{extension}";
+                    destinationPath = Path.Combine(destinationFolder, fileName);
+                    counter++;
+                }
+
+                // Move the file
+                File.Move(picture.FilePath ?? string.Empty, destinationPath);
+                
+                // Remove the picture from the queue
                 PicturesQueue.Remove(picture);
                 
-                // Notify that remaining count has changed
+                // Update remaining count display
                 OnPropertyChanged(nameof(RemainingImageCount));
                 OnPropertyChanged(nameof(ProcessedPercentage));
-                
-                // If we removed the current picture, we need to adjust CurrentIndex
+
+                // If there are more images, show the next one
                 if (PicturesQueue.Count > 0)
                 {
-                    // If we removed the last picture in the queue, go to the new last picture
-                    if (currentIdx >= PicturesQueue.Count)
+                    // If we removed the last image, move to the previous one
+                    if (CurrentIndex >= PicturesQueue.Count)
                     {
                         CurrentIndex = PicturesQueue.Count - 1;
                     }
-                    else
-                    {
-                        // Stay at the same index (which is now the next picture)
-                        CurrentIndex = currentIdx;
-                    }
                     
                     CurrentPicture = PicturesQueue[CurrentIndex];
-                }                else
+                }
+                else
                 {
-                    // If no pictures left, reset everything
+                    // If no more images, clear the display
                     CurrentPicture = null;
                     CurrentImage = null;
-                    CurrentIndex = 0;
-                    
-                    // If there are no more pictures in the queue, prompt to empty the bin folder
-                    if (destinationFolder == BinFolderPath)
-                    {
-                        // Don't prompt immediately since we might be in the process of finishing up
-                        // Wait a moment to ensure the UI has updated
-                        System.Threading.Tasks.Task.Delay(100).ContinueWith(_ => 
-                        {
-                            Application.Current.Dispatcher.Invoke(() => CheckAndPromptToEmptyBinFolder());
-                        });
-                    }
-                    else
-                    {
-                        // Check if any images were moved to the bin folder during this session
-                        if (Directory.Exists(BinFolderPath) && 
-                            Directory.GetFiles(BinFolderPath, "*.*").Any(file => 
-                                new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" }
-                                    .Contains(Path.GetExtension(file).ToLower())))
-                        {
-                            System.Threading.Tasks.Task.Delay(100).ContinueWith(_ => 
-                            {
-                                Application.Current.Dispatcher.Invoke(() => CheckAndPromptToEmptyBinFolder());
-                            });
-                        }
-                    }
+                    // Reset video state
+                    IsVideoPlaying = false;
+                    IsCurrentItemVideo = false;
                 }
                 
-                // Update navigation button states
                 UpdateNavigationState();
             }
             catch (Exception ex)
@@ -493,60 +469,48 @@ namespace AfbeeldingenUitzoeken.ViewModels
                 MessageBox.Show($"Error moving file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        public bool CheckAndPromptToEmptyBinFolder()
+        
+        public event PropertyChangedEventHandler? PropertyChanged;
+        
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            // Check if bin folder exists and has files
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        
+        public void CheckAndPromptToEmptyBinFolder()
+        {
             if (!string.IsNullOrEmpty(BinFolderPath) && Directory.Exists(BinFolderPath))
             {
-                var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
-                var imageFiles = Directory.GetFiles(BinFolderPath, "*.*", SearchOption.AllDirectories)
-                    .Where(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()))
+                // Find all media files in the bin folder using our MediaExtensions helper
+                var mediaFiles = Directory.GetFiles(BinFolderPath, "*.*", SearchOption.AllDirectories)
+                    .Where(file => MediaExtensions.IsSupportedMedia(file))
                     .ToList();
-
-                if (imageFiles.Count > 0)
+                
+                if (mediaFiles.Count > 0)
                 {
-                    // Ask the user if they want to empty the bin folder
                     var result = MessageBox.Show(
-                        $"There are {imageFiles.Count} images in the Throw away folder. Would you like to delete them?",
-                        "Empty Throw Away Folder",
+                        $"There are {mediaFiles.Count} media files in the bin folder. Would you like to delete them permanently?",
+                        "Empty Bin Folder",
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
-
+                    
                     if (result == MessageBoxResult.Yes)
                     {
-                        try
+                        // Delete all files
+                        foreach (var file in mediaFiles)
                         {
-                            foreach (var file in imageFiles)
+                            try
                             {
                                 File.Delete(file);
                             }
-                            MessageBox.Show(
-                                "Throw away folder has been emptied successfully.",
-                                "Success",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
-                            return true;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(
-                                $"Error emptying Throw away folder: {ex.Message}",
-                                "Error",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error deleting file {file}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
                         }
                     }
                 }
             }
-            return false;
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

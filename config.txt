@@ -1,4 +1,4 @@
-LibraryPath=C:\Users\jovanede\OneDrive\Documents\DesignForms_24.0
-KeepFolderPath=C:\Users\jovanede\OneDrive - Infrastructuur Nederland\Documents\My Videos\Leawo
-BinFolderPath=C:\Users\jovanede\OneDrive - Infrastructuur Nederland\Documents\My Pictures
-CheckLaterFolderPath=C:\Users\jovanede\Downloads
+LibraryPath=C:\Users\jovanede\SynologyDrive\Afbeeldingen uitzoeken\2016\2016-10
+KeepFolderPath=C:\Users\jovanede\SynologyDrive\Afbeeldingen uitzoeken\2016\Gefilterd
+BinFolderPath=C:\Users\jovanede\SynologyDrive\Afbeeldingen uitzoeken\2016\Verwijderen
+CheckLaterFolderPath=C:\Users\jovanede\SynologyDrive\Afbeeldingen uitzoeken\2016\Annelies uitzoeken

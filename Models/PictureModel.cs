@@ -13,11 +13,16 @@ namespace AfbeeldingenUitzoeken.Models
         public long FileSize { get; set; } // In bytes
         public int Width { get; set; }
         public int Height { get; set; }
+        public bool IsVideo { get; set; } // Flag to indicate if this is a video file
+        public TimeSpan? VideoDuration { get; set; } // Duration for video files
         
         // Formatted properties for display
         public string FileSizeFormatted => FormatFileSize(FileSize);
         public string ResolutionFormatted => $"{Width} x {Height}";
         public string DateFormatted => CreationDate.ToString("yyyy-MM-dd HH:mm:ss");
+        public string DurationFormatted => VideoDuration.HasValue ? 
+            $"{VideoDuration.Value.Hours:D2}:{VideoDuration.Value.Minutes:D2}:{VideoDuration.Value.Seconds:D2}" : 
+            string.Empty;
         
         private string FormatFileSize(long byteCount)
         {

@@ -19,10 +19,9 @@ namespace AfbeeldingenUitzoeken;
 /// Interaction logic for App.xaml
 /// </summary>
 public partial class App : System.Windows.Application
-{
-    // Update server URL - this should point to a JSON file on your server
+{    // Update server URL - this should point to a JSON file on your server
     // that contains version information
-    private const string UpdateServerUrl = "https://your-domain.com/updates/version.json";
+    private const string UpdateServerUrl = "https://github.com/johan-van-ede/AfbeeldingenUitzoeken/releases/latest/download/version.json";
 
     protected override void OnStartup(StartupEventArgs e)
     {

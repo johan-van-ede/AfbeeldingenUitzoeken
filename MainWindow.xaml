@@ -6,8 +6,7 @@
         xmlns:local="clr-namespace:AfbeeldingenUitzoeken"
         mc:Ignorable="d"
         Title="Picture Sorting" Height="650" Width="1000"
-        Background="#1E1E1E">
-      <Window.Resources>
+        Background="#1E1E1E">      <Window.Resources>
         <!-- Dark Theme Colors -->
         <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>
         <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
@@ -17,8 +16,11 @@
         <SolidColorBrush x:Key="RedAccent" Color="#D9534F"/>
         <SolidColorBrush x:Key="BlueAccent" Color="#5BC0DE"/>
         
-        <!-- Color Converter for Button Hover Effect -->
+        <!-- Value Converters -->
         <local:BrightnessConverter x:Key="BrightnessConverter" BrightnessFactor="1.2"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <local:MediaTypeIconConverter x:Key="MediaTypeIconConverter"/>
           <!-- Base Button Style with Consistent Hover Effects -->
         <Style x:Key="UnifiedButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#3E3E3E"/>
@@ -114,13 +116,21 @@
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="100" />
                                                 <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>
-                                            <Image Grid.Row="0" 
+                                            </Grid.RowDefinitions>                                            <Image Grid.Row="0" 
                                                    Source="{Binding Thumbnail}" 
                                                    Stretch="Uniform" 
                                                    MaxHeight="100" 
                                                    MaxWidth="150"
                                                    Margin="2" />
+                                            <TextBlock Text="{Binding Converter={StaticResource MediaTypeIconConverter}}"
+                                                     FontSize="16"
+                                                     HorizontalAlignment="Right"
+                                                     VerticalAlignment="Top"
+                                                     Margin="0,2,5,0"
+                                                     Foreground="White"
+                                                     Background="#80000000"
+                                                     Padding="2,0,2,0"
+                                                     Visibility="{Binding IsVideo, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                             <TextBlock Grid.Row="1" 
                                                       Text="{Binding FileName}" 
                                                       TextTrimming="CharacterEllipsis"
@@ -162,10 +172,44 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
-            <!-- Image Display -->
+              <!-- Image Display -->
             <Border Grid.Row="0" Background="Black" Margin="10,10,10,0">
-                <Image Source="{Binding CurrentImage}" Stretch="Uniform" Margin="0" />
+                <Grid>
+                    <!-- Image display - visible when current item is not a video -->
+                    <Image Source="{Binding CurrentImage}" 
+                           Stretch="Uniform" 
+                           Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource InverseBooleanToVisibilityConverter}}" 
+                           Margin="0" />
+                    
+                    <!-- Video display - visible when current item is a video -->
+                    <MediaElement x:Name="VideoPlayer"
+                                 LoadedBehavior="Manual"
+                                 UnloadedBehavior="Stop"
+                                 Stretch="Uniform"
+                                 MediaOpened="VideoPlayer_MediaOpened"
+                                 MediaEnded="VideoPlayer_MediaEnded"
+                                 Volume="0.8"
+                                 Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 Margin="0" />
+                    
+                    <!-- Video controls overlay - only visible when hovering over a video -->
+                    <StackPanel Orientation="Horizontal" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Bottom"
+                               Margin="0,0,0,10"
+                               Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button x:Name="PlayPauseButton" 
+                                Style="{StaticResource NavButtonStyle}"
+                                Content="{Binding VideoPlayButtonContent}"
+                                Click="PlayPauseVideo_Click"
+                                Margin="5,0" />
+                        <Button x:Name="ReplayButton" 
+                                Style="{StaticResource NavButtonStyle}"
+                                Content="↻"
+                                Click="ReplayVideo_Click" 
+                                Margin="5,0" />
+                    </StackPanel>
+                </Grid>
             </Border>
             
             <!-- Image Information Panel -->
@@ -203,8 +247,7 @@
                                   Foreground="{StaticResource DarkText}" 
                                   FontSize="12"/>
                     </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+                      <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
                         <TextBlock Text="Path: " 
                                   Foreground="{StaticResource DarkText}" 
                                   FontSize="12"/>
@@ -212,6 +255,18 @@
                                   Foreground="{StaticResource DarkText}" 
                                   FontSize="12"
                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    
+                    <!-- Video duration - only visible for video files -->
+                    <StackPanel Orientation="Horizontal" 
+                               Margin="0,2,0,2"
+                               Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Duration: " 
+                                  Foreground="{StaticResource DarkText}" 
+                                  FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentPicture.DurationFormatted}" 
+                                  Foreground="{StaticResource DarkText}" 
+                                  FontSize="12"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
