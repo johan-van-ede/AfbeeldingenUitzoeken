@@ -1,0 +1,42 @@
+<Window x:Class="AfbeeldingenUitzoeken.Views.ManageSubfoldersDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Beheer submappen" Height="320" Width="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow"
+        Background="{DynamicResource ThemeBackground}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Beheer de submappen voor het bewaren van je foto's."
+                   Foreground="{DynamicResource ThemeText}"
+                   FontWeight="Normal"
+                   Margin="0,0,0,6"
+                   Grid.Row="0"/>
+        <TextBlock Text="Submappen in de bewaar-map:"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource ThemeText}"
+                   Margin="0,0,0,8"
+                   Grid.Row="1"/>
+        <ListBox x:Name="SubfoldersListBox"
+                 Grid.Row="2"
+                 MinHeight="80"
+                 MaxHeight="160"
+                 Background="{DynamicResource ThemeSecondary}"
+                 Foreground="{DynamicResource ThemeText}"
+                 ItemContainerStyle="{DynamicResource ThemeListBoxItemStyle}"/>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Grid.Row="3">
+            <TextBox x:Name="NewSubfolderTextBox" Width="140" Margin="0,0,10,0"
+                     Style="{DynamicResource ThemeTextBoxStyle}"/>
+            <Button Content="Toevoegen" Width="100" Height="36" Click="AddSubfolder_Click" Style="{StaticResource BaseButtonStyle}"/>
+            <Button Content="Verwijderen" Width="100" Height="36" Margin="10,0,0,0" Click="RemoveSubfolder_Click" Style="{StaticResource BaseButtonStyle}"/>
+        </StackPanel>
+        <Button Content="Sluiten" Width="100" Height="36" Margin="0,15,0,0" HorizontalAlignment="Right" Click="Close_Click" Grid.Row="4" Style="{StaticResource BaseButtonStyle}"/>
+    </Grid>
+</Window>

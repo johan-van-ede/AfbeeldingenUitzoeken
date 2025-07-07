@@ -6,82 +6,11 @@
         xmlns:local="clr-namespace:AfbeeldingenUitzoeken"
         xmlns:converters="clr-namespace:AfbeeldingenUitzoeken.Converters"
         mc:Ignorable="d"
-        Title="Picture Sorting" Height="650" Width="1000"
-        Background="#1E1E1E">      <Window.Resources>
-        <!-- Dark Theme Colors -->
-        <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>
-        <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
-        <SolidColorBrush x:Key="DarkBorder" Color="#3E3E3E"/>
-        <SolidColorBrush x:Key="DarkText" Color="#E0E0E0"/>
-        <SolidColorBrush x:Key="GreenAccent" Color="#5CB85C"/>
-        <SolidColorBrush x:Key="RedAccent" Color="#D9534F"/>
-        <SolidColorBrush x:Key="BlueAccent" Color="#5BC0DE"/>
-        
-        <!-- Value Converters -->
-        <converters:BrightnessConverter x:Key="BrightnessConverter" BrightnessFactor="1.2"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
-        <converters:MediaTypeIconConverter x:Key="MediaTypeIconConverter"/>
-        <converters:LoadingOpacityConverter x:Key="LoadingOpacityConverter"/>
-          <!-- Base Button Style with Consistent Hover Effects -->
-        <Style x:Key="UnifiedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#3E3E3E"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="5"
-                                BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="1" Opacity="0.7"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Opacity" Value="0.9"/>
-                                <Setter TargetName="border" Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BrightnessConverter}}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="RenderTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- Button Style Template -->
-        <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource UnifiedButtonStyle}">
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Margin" Value="8,5,8,5"/>
-            <Setter Property="FontSize" Value="22"/>
-        </Style>
-          <!-- Navigation Button Style -->
-        <Style x:Key="NavButtonStyle" TargetType="Button" BasedOn="{StaticResource UnifiedButtonStyle}">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Opacity" Value="0.9"/>
-            <Setter Property="Background" Value="#3E3E3E"/>
-        </Style>
-    </Window.Resources>
+        Title="Afbeelding Uitzoeker" Height="650" Width="1000">
     
-    <Grid Background="{StaticResource DarkBackground}">
+    <Grid Background="{StaticResource ThemeBackground}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -90,100 +19,147 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         
+        <!-- Folder Set Selector at the top center -->
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                Background="{StaticResource ThemeSecondary}" 
+                BorderBrush="{StaticResource ThemeBorder}" 
+                BorderThickness="0,0,0,1"
+                Padding="10,5">
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">                
+                <TextBlock Text="Folder Set:" 
+                          Foreground="{StaticResource ThemeText}" 
+                          VerticalAlignment="Center"
+                          Margin="0,0,10,0"/>
+                <ComboBox Style="{StaticResource ThemeComboBoxStyle}" 
+                         ItemsSource="{Binding AvailableFolderSets}" 
+                         SelectedItem="{Binding SelectedFolderSet}" 
+                         Width="200"
+                         DisplayMemberPath="Name"
+                         Background="{StaticResource ThemeSecondary}"
+                         BorderBrush="{StaticResource ThemeBorder}"/>
+            </StackPanel>
+        </Border>
+        
         <!-- Thumbnail Gallery -->
-        <Grid Grid.Row="0" Grid.Column="0">
+        <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             
-            <Border Grid.Row="0" BorderBrush="{StaticResource DarkBorder}" BorderThickness="0,0,1,0" Margin="10,10,5,0">
-                <Grid>
-                    <!-- Loading indicator overlay -->
-                    <Border Background="#80000000" 
-                           Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
-                           HorizontalAlignment="Stretch"
-                           VerticalAlignment="Stretch">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock Text="Loading images..." 
-                                      Foreground="{StaticResource DarkText}"
-                                      FontSize="14"
-                                      Margin="0,0,0,10"
-                                      HorizontalAlignment="Center"/>
-                            <ProgressBar IsIndeterminate="True" 
-                                       Width="150" 
-                                       Height="15"
-                                       Background="#3E3E3E"
-                                       Foreground="{StaticResource BlueAccent}"/>
-                        </StackPanel>
-                    </Border>
-                    
-                    <!-- Image thumbnails scrollview -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                 Opacity="{Binding IsLoading, Converter={StaticResource LoadingOpacityConverter}, ConverterParameter=0.6}">
-                        <ItemsControl ItemsSource="{Binding PicturesQueue}">
-                            <ItemsControl.ItemTemplate>
+            <Border Grid.Row="0" BorderBrush="{StaticResource ThemeBorder}" BorderThickness="0,0,1,0" Margin="10,10,5,0">
+                <Grid>                    
+                    <!-- Image thumbnails scrollview -->                    
+                    <ListBox x:Name="ImagesListBox" 
+                           ItemsSource="{Binding PicturesQueue}"
+                           SelectedIndex="{Binding CurrentIndex, Mode=OneWay}"
+                           Background="Transparent"
+                           BorderThickness="0"
+                           KeyDown="ImagesListBox_KeyDown"
+                           SelectionChanged="ImagesListBox_SelectionChanged"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto"
+                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                           VirtualizingPanel.ScrollUnit="Pixel"
+                           ScrollViewer.CanContentScroll="True">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource ThemeListBoxItemStyle}"/>
+                        </ListBox.ItemContainerStyle>                        
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Command="{Binding DataContext.SelectImageCommand, 
-                                                  RelativeSource={RelativeSource FindAncestor, 
-                                                  AncestorType={x:Type ItemsControl}}}"
-                                        CommandParameter="{Binding}"
-                                        Background="{StaticResource DarkSecondary}" 
-                                        BorderThickness="0" 
-                                        Padding="0" 
-                                        Margin="5"
-                                        Width="158"
-                                        Height="136">
-                                        <Border Padding="3" BorderBrush="{StaticResource DarkBorder}" Background="{StaticResource DarkSecondary}" BorderThickness="1" CornerRadius="3"
-                                            Width="150" HorizontalAlignment="Center">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="100" />
-                                                    <RowDefinition Height="Auto" />
-                                                </Grid.RowDefinitions>                                            <Image Grid.Row="0" 
-                                                   Source="{Binding Thumbnail}" 
-                                                   Stretch="Uniform" 
-                                                   MaxHeight="100" 
-                                                   MaxWidth="150"
-                                                   Margin="2" />
-                                                <TextBlock Text="{Binding Converter={StaticResource MediaTypeIconConverter}}"
+                                    <Border Padding="3" 
+                                          BorderBrush="{StaticResource ThemeBorder}" 
+                                          Background="{StaticResource ThemeSecondary}" 
+                                          BorderThickness="1" 
+                                          CornerRadius="3"
+                                          Width="150" 
+                                          Height="136" 
+                                          HorizontalAlignment="Center">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="100" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Image Grid.Row="0" 
+                                                 Source="{Binding Thumbnail}" 
+                                                 Stretch="Uniform" 
+                                                 MaxHeight="100" 
+                                                 MaxWidth="150"
+                                                 Margin="2" />                                            
+                                                 <TextBlock Text="{Binding Converter={StaticResource MediaTypeIconConverter}}"
                                                      FontSize="16"
                                                      HorizontalAlignment="Right"
                                                      VerticalAlignment="Top"
                                                      Margin="0,2,5,0"
-                                                     Foreground="White"
+                                                     Foreground="{StaticResource ThemeText}"
                                                      Background="#80000000"
                                                      Padding="2,0,2,0"
                                                      Visibility="{Binding IsVideo, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <TextBlock Grid.Row="1" 
-                                                      Text="{Binding FileName}" 
-                                                      TextTrimming="CharacterEllipsis"
-                                                      TextWrapping="NoWrap"
-                                                      FontSize="10"
-                                                      Foreground="{StaticResource DarkText}"
-                                                      Margin="2" />
-                                            </Grid>
-                                        </Border>
-                                    </Button>
+                                            <TextBlock Grid.Row="1" 
+                                                    Text="{Binding FileName}" 
+                                                    TextTrimming="CharacterEllipsis"
+                                                    TextWrapping="NoWrap"
+                                                    FontSize="10"
+                                                    Foreground="{StaticResource ThemeText}"                                                    
+                                                    Margin="2" />
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    <!-- Loading indicator overlay - positioned to stay on top -->
+                    <Border Background="{StaticResource ThemeOverlay}" 
+                           Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Stretch"
+                           Panel.ZIndex="100">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="Loading images..." 
+                                      Foreground="{StaticResource ThemeText}"
+                                      FontSize="14"
+                                      Margin="0,0,0,10"
+                                      HorizontalAlignment="Center"/>
+                            <ProgressBar 
+                                Minimum="0"
+                                Maximum="{Binding TotalImageCount}"
+                                Value="{Binding RemainingImageCount, Mode=OneWay}"
+                                Width="150" 
+                                Height="15"
+                                Background="{StaticResource ThemeBorder}"
+                                Foreground="{StaticResource ThemeInfo}"/>
+                            <TextBlock Text="{Binding LoadingProgressText}"
+                                       Foreground="{StaticResource ThemeText}"
+                                       FontSize="12"
+                                       Margin="0,10,0,0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
             
             <!-- Queue Progress Information Below Thumbnails -->
-            <!-- Adjusted margins and padding for consistent alignment -->
-            <Border Grid.Row="1" Background="{StaticResource DarkSecondary}" Margin="10,5,10,10" Padding="10" CornerRadius="3">
+            <Border Grid.Row="1" Background="{StaticResource ThemeSecondary}" Margin="10,5,10,10" Padding="10" CornerRadius="3">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Text="{Binding RemainingImageCount, StringFormat='Remaining Images: {0}'}" 
-                              Foreground="{StaticResource DarkText}" 
+                    <TextBlock Text="{Binding FolderSetDisplay}" 
+                              Foreground="{StaticResource ThemeText}" 
+                              FontSize="11"
+                              FontWeight="Bold"
+                              HorizontalAlignment="Center"
+                              Margin="0,2,0,4"/>
+
+                    <TextBlock Text="{Binding RemainingImageCount, Mode=OneWay, StringFormat='Remaining Images: {0}'}" 
+                              Foreground="{StaticResource ThemeText}" 
                               FontSize="11"
                               HorizontalAlignment="Center"
                               Margin="0,2,0,2"/>
-                    
+
                     <TextBlock Text="{Binding ProcessedPercentage, StringFormat='Progress: {0}'}" 
-                              Foreground="{StaticResource DarkText}" 
+                              Foreground="{StaticResource ThemeText}" 
                               FontSize="11"
                               HorizontalAlignment="Center"
                               Margin="0,2,0,2"/>
@@ -192,21 +168,49 @@
         </Grid>
         
         <!-- Main Image Display with Navigation Buttons and Image Info -->
-        <Grid Grid.Row="0" Grid.Column="1">
+        <Grid Grid.Row="1" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-              <!-- Image Display -->
-            <Border Grid.Row="0" Background="Black" Margin="10,10,10,0">
+            </Grid.RowDefinitions>            
+            <!-- Image Display -->
+            <Border Grid.Row="0" Background="{StaticResource ThemeBlack}" Margin="10,10,10,0">
                 <Grid>
                     <!-- Image display - visible when current item is not a video -->
-                    <Image Source="{Binding CurrentImage}" 
+                    <Image Source="{Binding CurrentPicture.Image}" 
                            Stretch="Uniform" 
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"
+                           UseLayoutRounding="True"
+                           SnapsToDevicePixels="True"
                            Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource InverseBooleanToVisibilityConverter}}" 
                            Margin="0" />
                     
-                    <!-- Video display - visible when current item is a video -->
+                    <!-- Video thumbnail display - visible when current item is a video and not playing -->
+                    <Image Source="{Binding CurrentPicture.Thumbnail}"
+                           Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"
+                           UseLayoutRounding="True"
+                           SnapsToDevicePixels="True"
+                           Margin="0"
+                           Visibility="Collapsed">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsCurrentItemVideo}" Value="True"/>
+                                            <Condition Binding="{Binding IsVideoPlaying}" Value="False"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    
+                    <!-- Video display - visible only when video is actually playing -->
                     <MediaElement x:Name="VideoPlayer"
                                  LoadedBehavior="Manual"
                                  UnloadedBehavior="Stop"
@@ -214,22 +218,22 @@
                                  MediaOpened="VideoPlayer_MediaOpened"
                                  MediaEnded="VideoPlayer_MediaEnded"
                                  Volume="0.8"
-                                 Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 Visibility="{Binding IsVideoPlaying, Converter={StaticResource BooleanToVisibilityConverter}}"
                                  Margin="0" />
                     
-                    <!-- Video controls overlay - only visible when hovering over a video -->
+                    <!-- Video controls overlay - only visible when current item is a video -->
                     <StackPanel Orientation="Horizontal" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Bottom"
                                Margin="0,0,0,10"
                                Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Button x:Name="PlayPauseButton" 
-                                Style="{StaticResource NavButtonStyle}"
+                                Style="{StaticResource NavigationButtonStyle}"
                                 Content="{Binding VideoPlayButtonContent}"
                                 Click="PlayPauseVideo_Click"
                                 Margin="5,0" />
                         <Button x:Name="ReplayButton" 
-                                Style="{StaticResource NavButtonStyle}"
+                                Style="{StaticResource NavigationButtonStyle}"
                                 Content="↻"
                                 Click="ReplayVideo_Click" 
                                 Margin="5,0" />
@@ -237,70 +241,58 @@
                 </Grid>
             </Border>
             
-            <!-- Image Information Panel -->
-            <Border Grid.Row="1" Background="{StaticResource DarkSecondary}" Margin="10,5,10,10" Padding="10" CornerRadius="3">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                    <TextBlock Text="{Binding CurrentPicture.FileName}" 
-                              Foreground="{StaticResource DarkText}" 
-                              FontWeight="Bold" 
-                              FontSize="14"
-                              Margin="0,0,0,5"/>
-                    
+            <!-- Overlayed Image Information Panel -->
+            <Border Grid.Row="0"
+                    Background="#80000000"  
+                    CornerRadius="6"
+                    Padding="10"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Margin="10,0,0,0"
+                    MinWidth="220"
+                    MaxWidth="400"
+                    Opacity="0.85"
+                    RenderTransformOrigin="0,1"
+                    Panel.ZIndex="10">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{Binding CurrentPicture.FileName}"
+                               Foreground="White"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               Margin="0,0,0,5"/>
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                        <TextBlock Text="Date: " 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
-                        <TextBlock Text="{Binding CurrentPicture.DateFormatted}" 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
+                        <TextBlock Text="Date: " Foreground="White" FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentPicture.DateFormatted}" Foreground="White" FontSize="12"/>
                     </StackPanel>
-                    
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                        <TextBlock Text="Resolution: " 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
-                        <TextBlock Text="{Binding CurrentPicture.ResolutionFormatted}" 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
+                        <TextBlock Text="Resolution: " Foreground="White" FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentPicture.Resolution}" Foreground="White" FontSize="12"/>
                     </StackPanel>
-                    
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                        <TextBlock Text="File Size: " 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
-                        <TextBlock Text="{Binding CurrentPicture.FileSizeFormatted}" 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
+                        <TextBlock Text="File Size: " Foreground="White" FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentPicture.FileSizeFormatted}" Foreground="White" FontSize="12"/>
                     </StackPanel>
-                      <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                        <TextBlock Text="Path: " 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
-                        <TextBlock Text="{Binding CurrentPicture.FilePath}" 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"
-                                  TextTrimming="CharacterEllipsis"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+                        <TextBlock Text="Path: " Foreground="White" FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentPicture.FilePath}"
+                                   Foreground="White"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   MaxWidth="300"/>
                     </StackPanel>
-                    
                     <!-- Video duration - only visible for video files -->
-                    <StackPanel Orientation="Horizontal" 
-                               Margin="0,2,0,2"
-                               Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="Duration: " 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
-                        <TextBlock Text="{Binding CurrentPicture.DurationFormatted}" 
-                                  Foreground="{StaticResource DarkText}" 
-                                  FontSize="12"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,2" Visibility="{Binding IsCurrentItemVideo, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Duration: " Foreground="White" FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentPicture.DurationFormatted}" Foreground="White" FontSize="12"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
-            
             <!-- Navigation Buttons -->
-            <Button Grid.Row="0" 
-                    Style="{StaticResource NavButtonStyle}"
-                    Command="{Binding PreviousPictureCommand}" 
-                    IsEnabled="{Binding CanGoPrevious}"
+            <Button x:Name="PreviousButton" 
+                    Grid.Row="0" 
+                    Style="{StaticResource NavigationButtonStyle}"
+                    Click="PreviousButton_Click"
                     HorizontalAlignment="Left" 
                     VerticalAlignment="Center" 
                     Margin="20,0,0,0">
@@ -311,10 +303,10 @@
                            Padding="0,0,2,0" />
             </Button>
             
-            <Button Grid.Row="0" 
-                    Style="{StaticResource NavButtonStyle}"
-                    Command="{Binding NextPictureCommand}" 
-                    IsEnabled="{Binding CanGoNext}"
+            <Button x:Name="NextButton"
+                    Grid.Row="0" 
+                    Style="{StaticResource NavigationButtonStyle}"
+                    Click="NextButton_Click"
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center" 
                     Margin="0,0,20,0">
@@ -327,37 +319,36 @@
         </Grid>
         
         <!-- Action Buttons and Settings in the same row -->
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,2,5,2">
                 <!-- Keep Button - Green Checkmark -->
-                <Button Style="{StaticResource IconButtonStyle}" 
-                        Background="{StaticResource GreenAccent}"
-                        Content="✓" 
-                        Command="{Binding KeepCommand}"
-                        ToolTip="Keep" />
-                
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Background="{StaticResource ThemeSuccess}"
+                        Content="✓"
+                        ToolTip="Keep"
+                        Click="KeepButton_Click" />
                 <!-- Throw Away Button - Red Cross -->
-                <Button Style="{StaticResource IconButtonStyle}" 
-                        Background="{StaticResource RedAccent}"
-                        Content="✗" 
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Background="{StaticResource ThemeDanger}"
+                        Content="✗"
                         Command="{Binding ThrowAwayCommand}"
                         ToolTip="Throw Away" />
-                
                 <!-- Check Later Button - Clock Symbol -->
-                <Button Style="{StaticResource IconButtonStyle}" 
-                        Background="{StaticResource BlueAccent}"
-                        Content="🕒" 
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Background="{StaticResource ThemeInfo}"
+                        Content="🕒"
                         Command="{Binding CheckLaterCommand}"
                         ToolTip="Check Later" />
             </StackPanel>
-              <!-- Settings Button (Right aligned) -->
+            
+            <!-- Settings Button (Right aligned) -->
             <Button Style="{StaticResource IconButtonStyle}"
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Center"
                     Margin="10" 
                     Width="40"
                     Height="40"
-                    Background="{StaticResource DarkSecondary}"
+                    Background="{StaticResource ThemeSecondary}"
                     Content="⚙️" 
                     ToolTip="Settings"
                     Click="OpenSettings_Click" />

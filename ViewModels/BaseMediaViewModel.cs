@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -16,7 +15,6 @@ namespace AfbeeldingenUitzoeken.ViewModels
     public abstract class BaseMediaViewModel : INotifyPropertyChanged
     {
         private PictureModel? _currentPicture;
-        private BitmapImage? _currentImage;
         private bool _isCurrentItemVideo = false;
         private bool _isVideoPlaying = false;
         private string _videoPlayButtonContent = "▶";
@@ -69,26 +67,21 @@ namespace AfbeeldingenUitzoeken.ViewModels
             {
                 _currentPicture = value;
                 OnPropertyChanged();
-                
-                // Reset video state when changing items
+
                 IsVideoPlaying = false;
-                
+
                 if (value != null && !string.IsNullOrEmpty(value.FilePath) && File.Exists(value.FilePath))
                 {
                     try 
-                    {
-                        // Set IsCurrentItemVideo based on PictureModel's IsVideo property or using MediaExtensions
-                        IsCurrentItemVideo = value.IsVideo || (!string.IsNullOrEmpty(value.FilePath) && MediaExtensions.IsVideo(value.FilePath));
-                        
+                    {                        
+                        IsCurrentItemVideo = value.IsVideo || (!string.IsNullOrEmpty(value.FilePath) && MediaExtensions.IsVideo(value.FilePath));                        
                         if (!IsCurrentItemVideo && !string.IsNullOrEmpty(value.FilePath))
                         {
-                            // Handle image file - use the ImageLoader helper for better performance
-                            CurrentImage = ImageLoader.LoadImage(value.FilePath);
-                        }
-                        else
-                        {
-                            // For videos, we'll load them in the MediaElement in code-behind
-                            // The View will handle video loading via the property changed event
+                            // Load full-res image if not already loaded
+                            if (value.Image == null)
+                            {
+                                value.Image = ImageLoader.LoadImage(value.FilePath);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -97,18 +90,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
                     }
                 }
             }
-        }
+        }        
 
-        public BitmapImage? CurrentImage
-        {
-            get => _currentImage;
-            set
-            {
-                _currentImage = value;
-                OnPropertyChanged();
-            }
-        }
-        
         public event PropertyChangedEventHandler? PropertyChanged;
         
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

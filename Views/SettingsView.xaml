@@ -9,87 +9,61 @@
         xmlns:converters="clr-namespace:AfbeeldingenUitzoeken.Converters"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="500"
-        Background="#1E1E1E">
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        
-        <!-- Dark Theme Colors -->
-        <SolidColorBrush x:Key="DarkBackground" Color="#1E1E1E"/>
-        <SolidColorBrush x:Key="DarkSecondary" Color="#2D2D2D"/>
-        <SolidColorBrush x:Key="DarkBorder" Color="#3E3E3E"/>
-        <SolidColorBrush x:Key="DarkText" Color="#E0E0E0"/>
-        <SolidColorBrush x:Key="GreenAccent" Color="#5CB85C"/>
-        <SolidColorBrush x:Key="BlueAccent" Color="#5BC0DE"/>
-        <SolidColorBrush x:Key="WarningColor" Color="#FF4444"/>
-        
-        <!-- Warning Icon Style -->
-        <Style x:Key="WarningIconStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource WarningColor}"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5,0,0,0"/>
-            <Setter Property="ToolTip" Value="This folder no longer exists"/>
-            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
-        </Style>
-        
-        <!-- Base Button Style with Consistent Hover Effects -->
-        <Style x:Key="UnifiedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#3E3E3E"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="5"
-                                BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#5BC0DE"/>
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="1" Opacity="0.7"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="RenderTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- TextBox Style -->
-        <Style x:Key="DarkTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#2D2D2D"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="BorderBrush" Value="#3E3E3E"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="5"/>
-        </Style>
-    </Window.Resources>
+        Background="{StaticResource ThemeBackground}">
     <Window.DataContext>
         <viewModels:SettingsViewModel />
     </Window.DataContext>
-    <Grid Background="{StaticResource DarkBackground}">
+    <Grid Background="{StaticResource ThemeBackground}">
         <StackPanel Margin="20">
+            <!-- Folder Set Selection -->
+            <TextBlock Text="Folder Sets:" 
+                      Foreground="{StaticResource ThemeText}"
+                      Margin="0,0,0,5" FontWeight="Bold" />
+            <Grid Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox ItemsSource="{Binding FolderSets}"
+                         SelectedItem="{Binding SelectedFolderSet}"
+                         Grid.Column="0"
+                         Style="{StaticResource ThemeComboBoxStyle}"
+                         DisplayMemberPath="Name"
+                         IsSynchronizedWithCurrentItem="True"/>
+                <Button Command="{Binding RemoveFolderSetCommand}" 
+                       Grid.Column="1"
+                       Style="{StaticResource BaseButtonStyle}"
+                       Background="{StaticResource ThemeDanger}"
+                       Width="40"
+                       Margin="5,0,0,0"
+                       ToolTip="Remove selected folder set">
+                    <TextBlock Text="🗑️" FontSize="14"/>
+                </Button>
+            </Grid>
+
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding NewFolderSetName, UpdateSourceTrigger=PropertyChanged}" 
+                        Style="{StaticResource ThemeTextBoxStyle}"
+                        Grid.Column="0"
+                        Margin="0,0,5,0"
+                        ToolTip="Enter name for new folder set"/>
+                <Button Command="{Binding SaveFolderSetCommand}" 
+                       Grid.Column="1"
+                       Style="{StaticResource BaseButtonStyle}"
+                       Background="{StaticResource ThemeSuccess}"
+                       Content="Save Folder Set"
+                       Padding="10,5"
+                       Margin="0"
+                       ToolTip="Save current folders as a new set"/>
+            </Grid>
+            
             <!-- Folder Selection -->
             <TextBlock Text="Source Library (Uit te zoeken afbeeldingen):" 
-                      Foreground="{StaticResource DarkText}"
+                      Foreground="{StaticResource ThemeText}"
                       Margin="0,0,0,5" />
             <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
@@ -99,12 +73,12 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding LibraryPath}" 
                         IsReadOnly="True"
-                        Style="{StaticResource DarkTextBoxStyle}"
+                        Style="{StaticResource ThemeTextBoxStyle}"
                         Grid.Column="0" />
                 <Button Command="{Binding SelectLibraryCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource UnifiedButtonStyle}"
-                       Background="#3E3E3E"
+                       Style="{StaticResource BaseButtonStyle}"
+                       Background="{StaticResource ThemeBorder}"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -112,12 +86,17 @@
                 </Button>
                 <TextBlock Text="⚠" 
                           Grid.Column="2"
-                          Style="{StaticResource WarningIconStyle}"
+                          Foreground="{StaticResource ThemeDanger}"
+                          FontSize="16"
+                          VerticalAlignment="Center"
+                          Margin="5,0,0,0"
+                          ToolTip="This folder no longer exists"
+                          FontFamily="Segoe UI Symbol"
                           Visibility="{Binding IsLibraryPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
             
             <TextBlock Text="Keep Folder:" 
-                      Foreground="{StaticResource DarkText}"
+                      Foreground="{StaticResource ThemeText}"
                       Margin="0,0,0,5" />
             <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
@@ -127,12 +106,12 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding KeepFolderPath}" 
                         IsReadOnly="True"
-                        Style="{StaticResource DarkTextBoxStyle}"
+                        Style="{StaticResource ThemeTextBoxStyle}"
                         Grid.Column="0" />
                 <Button Command="{Binding SelectKeepFolderCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource UnifiedButtonStyle}"
-                       Background="#3E3E3E"
+                       Style="{StaticResource BaseButtonStyle}"
+                       Background="{StaticResource ThemeBorder}"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -140,12 +119,17 @@
                 </Button>
                 <TextBlock Text="⚠" 
                           Grid.Column="2"
-                          Style="{StaticResource WarningIconStyle}"
+                          Foreground="{StaticResource ThemeDanger}"
+                          FontSize="16"
+                          VerticalAlignment="Center"
+                          Margin="5,0,0,0"
+                          ToolTip="This folder no longer exists"
+                          FontFamily="Segoe UI Symbol"
                           Visibility="{Binding IsKeepFolderPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
 
             <TextBlock Text="Bin Folder:" 
-                      Foreground="{StaticResource DarkText}"
+                      Foreground="{StaticResource ThemeText}"
                       Margin="0,0,0,5" />
             <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
@@ -155,12 +139,12 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding BinFolderPath}" 
                         IsReadOnly="True"
-                        Style="{StaticResource DarkTextBoxStyle}"
+                        Style="{StaticResource ThemeTextBoxStyle}"
                         Grid.Column="0" />
                 <Button Command="{Binding SelectBinFolderCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource UnifiedButtonStyle}"
-                       Background="#3E3E3E"
+                       Style="{StaticResource BaseButtonStyle}"
+                       Background="{StaticResource ThemeBorder}"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -168,12 +152,17 @@
                 </Button>
                 <TextBlock Text="⚠" 
                           Grid.Column="2"
-                          Style="{StaticResource WarningIconStyle}"
+                          Foreground="{StaticResource ThemeDanger}"
+                          FontSize="16"
+                          VerticalAlignment="Center"
+                          Margin="5,0,0,0"
+                          ToolTip="This folder no longer exists"
+                          FontFamily="Segoe UI Symbol"
                           Visibility="{Binding IsBinFolderPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
 
             <TextBlock Text="Check Later Folder:" 
-                      Foreground="{StaticResource DarkText}"
+                      Foreground="{StaticResource ThemeText}"
                       Margin="0,0,0,5" />
             <Grid Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
@@ -183,12 +172,12 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding CheckLaterFolderPath}" 
                         IsReadOnly="True"
-                        Style="{StaticResource DarkTextBoxStyle}"
+                        Style="{StaticResource ThemeTextBoxStyle}"
                         Grid.Column="0" />
                 <Button Command="{Binding SelectCheckLaterFolderCommand}" 
                        Grid.Column="1"
-                       Style="{StaticResource UnifiedButtonStyle}"
-                       Background="#3E3E3E"
+                       Style="{StaticResource BaseButtonStyle}"
+                       Background="{StaticResource ThemeBorder}"
                        Width="40"
                        Margin="5,0,0,0"
                        ToolTip="Select folder">
@@ -196,7 +185,12 @@
                 </Button>
                 <TextBlock Text="⚠" 
                           Grid.Column="2"
-                          Style="{StaticResource WarningIconStyle}"
+                          Foreground="{StaticResource ThemeDanger}"
+                          FontSize="16"
+                          VerticalAlignment="Center"
+                          Margin="5,0,0,0"
+                          ToolTip="This folder no longer exists"
+                          FontFamily="Segoe UI Symbol"
                           Visibility="{Binding IsCheckLaterFolderPathInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
             
@@ -205,15 +199,15 @@
                    Command="{Binding SaveCommand}" 
                    Width="120" 
                    Height="35"
-                   Background="{StaticResource GreenAccent}"
+                   Background="{StaticResource ThemeSuccess}"
                    HorizontalAlignment="Right" 
                    Margin="0,20,0,0" 
-                   Style="{StaticResource UnifiedButtonStyle}"
+                   Style="{StaticResource BaseButtonStyle}"
                    Visibility="{Binding IsSaveButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
             
             <!-- Version Information -->
             <TextBlock Text="{Binding VersionInfo}" 
-                      Foreground="{StaticResource DarkText}"
+                      Foreground="{StaticResource ThemeText}"
                       Opacity="0.6"
                       FontSize="11"
                       HorizontalAlignment="Right"

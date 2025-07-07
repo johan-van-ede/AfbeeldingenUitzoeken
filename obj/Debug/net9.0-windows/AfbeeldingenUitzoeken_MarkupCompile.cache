@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET9_0;NETCOREAPP
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\App.xaml
-2501856588
+6-1711180550
 
-24-211616887
-210-1500217837
-MainWindow.xaml;Views\SettingsView.xaml;
+33-2039298766
+212-214978865
+Resources\ThemeResources.xaml;TestWindow.xaml;Views\KeepSubfolderPopup.xaml;Views\ManageSubfoldersDialog.xaml;MainWindow.xaml;Views\SettingsView.xaml;
 
 False
 

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using AfbeeldingenUitzoeken.Helpers;
 using AfbeeldingenUitzoeken.Models;
+using AfbeeldingenUitzoeken.Helpers;
 
 namespace AfbeeldingenUitzoeken.Helpers
 {
@@ -78,10 +79,10 @@ namespace AfbeeldingenUitzoeken.Helpers
         private async Task ProcessQueue(CancellationToken token)
         {
             while (!token.IsCancellationRequested && (_pendingFiles.Count > 0 || _runningTasks.Count > 0))
-            {
-                // Start new tasks if we have capacity
+            {                // Start new tasks if we have capacity
                 while (_pendingFiles.Count > 0 && _runningTasks.Count < _maxConcurrentTasks)
-                {                    if (_pendingFiles.TryDequeue(out string filePath))
+                {                    
+                    if (_pendingFiles.TryDequeue(out string? filePath) && filePath != null)
                     {
                         var task = Task.Run(() => LoadPictureModel(filePath), token);
                         _runningTasks.TryAdd(filePath, task);
@@ -90,7 +91,7 @@ namespace AfbeeldingenUitzoeken.Helpers
                 
                 // Wait for any task to complete
                 Task<Task<PictureModel?>>? completedTask = null;
-                  if (_runningTasks.Count > 0)
+                if (_runningTasks.Count > 0)
                 {
                     try
                     {
@@ -106,7 +107,8 @@ namespace AfbeeldingenUitzoeken.Helpers
                         // Notify listeners
                         if (pictureModel != null)
                             ImageLoaded?.Invoke(pictureModel);
-                    }                    catch (Exception)
+                    }                    
+                    catch (Exception)
                     {
                         // Handle task failures - just remove the task and continue
                         if (completedTask?.Result != null)
@@ -125,24 +127,65 @@ namespace AfbeeldingenUitzoeken.Helpers
             }
             
             _isRunning = false;
-        }
-          private PictureModel? LoadPictureModel(string filePath)
+        }          
+        private PictureModel? LoadPictureModel(string filePath)
         {
             try
             {
                 bool isVideo = MediaExtensions.IsVideo(filePath);
                 var fileInfo = new System.IO.FileInfo(filePath);
-                
-                // Load thumbnail with caching
-                var thumbnail = ImageLoader.LoadImage(filePath, maxWidth: 150, isThumbnail: true);
+
+                // For videos, don't try to load them directly as images
+                BitmapImage? thumbnail = null;
+                BitmapImage? fullSizeImage = null;
+                int width = 0;
+                int height = 0;
+
+                if (isVideo)
+                {
+                    // Try to load the Windows-generated thumbnail
+                    try
+                    {
+                        // Look for Windows thumbnail cache files in the same directory
+                        string directory = System.IO.Path.GetDirectoryName(filePath) ?? string.Empty;
+                        string filename = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                        
+                        // Check for Windows thumbnail in the hidden thumbnail cache
+                        // Common locations include:
+                        // 1. Same directory in Thumbs.db (hidden file)
+                        // 2. In the Windows thumbnail cache
+                        
+                        // First, try using VideoThumbnailExtractor which attempts to find system thumbnails
+                        thumbnail = VideoThumbnailExtractor.ExtractThumbnail(filePath, maxWidth: 150);
+                        
+                        // If that didn't work, as a last resort, try the standard thumbnail method
+                        if (thumbnail == null)
+                        {
+                            thumbnail = ImageLoader.LoadVideoThumbnail(filePath, maxWidth: 150);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to create video thumbnail: {ex.Message}");
+                    }
+                }
+                else
+                {                    
+                    // Standard image loading
+                    thumbnail = ImageLoader.LoadImage(filePath, maxWidth: 150, isThumbnail: true);
+                    fullSizeImage = ImageLoader.LoadImage(filePath);
+                }
                 
                 if (thumbnail == null)
                     return null;
                     
-                int width = 0;
-                int height = 0;
-                
-                if (!isVideo)
+                // Get image dimensions
+                if (fullSizeImage != null)
+                {
+                    width = fullSizeImage.PixelWidth;
+                    height = fullSizeImage.PixelHeight;
+                }
+                else if (thumbnail != null)
                 {
                     width = thumbnail.PixelWidth;
                     height = thumbnail.PixelHeight;
@@ -152,6 +195,7 @@ namespace AfbeeldingenUitzoeken.Helpers
                 {
                     FilePath = filePath,
                     FileName = System.IO.Path.GetFileName(filePath),
+                    Image = fullSizeImage,
                     Thumbnail = thumbnail,
                     CreationDate = fileInfo.CreationTime,
                     FileSize = fileInfo.Length,

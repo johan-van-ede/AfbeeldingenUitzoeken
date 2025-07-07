@@ -1,0 +1,38 @@
+<Window x:Class="AfbeeldingenUitzoeken.Views.KeepSubfolderPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kies submap" Width="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow"
+        Background="{DynamicResource ThemeBackground}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" MinHeight="48"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Kies een submap om de foto te bewaren:"
+                   FontWeight="Bold"
+                   Margin="0,0,0,8"
+                   Grid.Row="0"
+                   Foreground="{DynamicResource ThemeText}"/>
+        <ListBox x:Name="ButtonsPanel"
+                 Grid.Row="1"
+                 MinHeight="40"
+                 VerticalAlignment="Stretch"
+                 Margin="0,0,0,4"
+                 Background="{DynamicResource ThemeSecondary}"
+                 Foreground="{DynamicResource ThemeText}"
+                 ItemContainerStyle="{DynamicResource ThemeListBoxItemStyle}"/>
+        <Button Content="Beheer submappen..."
+                Grid.Row="2"
+                Margin="0,12,0,0"
+                HorizontalAlignment="Right"
+                Width="140"
+                Height="36"
+                VerticalAlignment="Bottom"
+                Style="{StaticResource BaseButtonStyle}"
+                Click="ManageSubfolders_Click"/>
+    </Grid>
+</Window>
