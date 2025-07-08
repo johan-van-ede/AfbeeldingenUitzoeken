@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AfbeeldingenUitzoeken")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0.0+ade15400671d25b75d9d292252c0665b835272f2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0.0+bc1810c3be299276011c6326938eab5c88c27806")]
 [assembly: System.Reflection.AssemblyProductAttribute("AfbeeldingenUitzoeken")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AfbeeldingenUitzoeken")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
