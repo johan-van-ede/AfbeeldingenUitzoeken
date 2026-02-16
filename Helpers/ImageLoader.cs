@@ -42,6 +42,7 @@ namespace AfbeeldingenUitzoeken.Helpers
                 // Load image into memory stream to allow metadata access
                 using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
+                    
                     var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
                     BitmapFrame frame = decoder.Frames[0];
 
@@ -58,31 +59,32 @@ namespace AfbeeldingenUitzoeken.Helpers
                     // Apply rotation/flip if needed
                     TransformedBitmap? transformed = null;
                     var transform = new System.Windows.Media.TransformGroup();
-                    switch (orientation)
-                    {
-                        case 2: // Flip horizontal
-                            transform.Children.Add(new System.Windows.Media.ScaleTransform(-1, 1, 0.5, 0.5));
-                            break;
-                        case 3: // Rotate 180
-                            transform.Children.Add(new System.Windows.Media.RotateTransform(180));
-                            break;
-                        case 4: // Flip vertical
-                            transform.Children.Add(new System.Windows.Media.ScaleTransform(1, -1, 0.5, 0.5));
-                            break;
-                        case 5: // Transpose
-                            transform.Children.Add(new System.Windows.Media.RotateTransform(90));
-                            transform.Children.Add(new System.Windows.Media.ScaleTransform(1, -1, 0.5, 0.5));
-                            break;
-                        case 6: // Rotate 90
-                            transform.Children.Add(new System.Windows.Media.RotateTransform(90));
-                            break;
-                        case 7: // Transverse
-                            transform.Children.Add(new System.Windows.Media.RotateTransform(270));
-                            transform.Children.Add(new System.Windows.Media.ScaleTransform(1, -1, 0.5, 0.5));
-                            break;
-                        case 8: // Rotate 270
-                            transform.Children.Add(new System.Windows.Media.RotateTransform(270));
-                            break;
+                        switch (orientation)
+                        {
+                            case 2: // Flip horizontal
+                                transform.Children.Add(new System.Windows.Media.ScaleTransform(-1, 1, 0.5, 0.5));
+                                break;
+                            case 3: // Rotate 180
+                                transform.Children.Add(new System.Windows.Media.RotateTransform(180));
+                                break;
+                            case 4: // Flip vertical
+                                transform.Children.Add(new System.Windows.Media.ScaleTransform(1, -1, 0.5, 0.5));
+                                break;
+                            case 5: // Transpose
+                                transform.Children.Add(new System.Windows.Media.RotateTransform(90));
+                                transform.Children.Add(new System.Windows.Media.ScaleTransform(1, -1, 0.5, 0.5));
+                                break;
+                            case 6: // Rotate 90
+                                transform.Children.Add(new System.Windows.Media.RotateTransform(90));
+                                break;
+                            case 7: // Transverse
+                                transform.Children.Add(new System.Windows.Media.RotateTransform(270));
+                                transform.Children.Add(new System.Windows.Media.ScaleTransform(1, -1, 0.5, 0.5));
+                                break;
+                            case 8: // Rotate 270
+                                transform.Children.Add(new System.Windows.Media.RotateTransform(270));
+                                break;
+                        
                     }
 
                     BitmapSource source = frame;

@@ -8,11 +8,11 @@ C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\obj\D
 AfbeeldingenUitzoeken
 none
 false
-TRACE;DEBUG;NET;NET9_0;NETCOREAPP
+TRACE;DEBUG;NET;NET9_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\Users\jovanede\RiderProjects\Afbeelding Uitzoeker\AfbeeldingenUitzoeken\App.xaml
 6-1711180550
 
-33-2039298766
+351348449653
 212-214978865
 Resources\ThemeResources.xaml;TestWindow.xaml;Views\KeepSubfolderPopup.xaml;Views\ManageSubfoldersDialog.xaml;MainWindow.xaml;Views\SettingsView.xaml;
 

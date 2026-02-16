@@ -332,7 +332,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
             {
                 CurrentIndex++;
                 SetCurrentPictureWithFullImage(PicturesQueue[CurrentIndex]);
-                OnItemNavigated?.Invoke(CurrentPicture);
+                if (CurrentPicture != null)
+                    OnItemNavigated?.Invoke(CurrentPicture);
                 // Debug
                 System.Diagnostics.Debug.WriteLine($"NavigateTo(next) executed: CurrentIndex={CurrentIndex}, Picture={CurrentPicture?.FileName}");
             }
@@ -340,7 +341,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
             {
                 CurrentIndex--;
                 SetCurrentPictureWithFullImage(PicturesQueue[CurrentIndex]);
-                OnItemNavigated?.Invoke(CurrentPicture);
+                if (CurrentPicture != null)
+                    OnItemNavigated?.Invoke(CurrentPicture);
                 // Debug
                 System.Diagnostics.Debug.WriteLine($"NavigateTo(previous) executed: CurrentIndex={CurrentIndex}, Picture={CurrentPicture?.FileName}");
             }
@@ -348,7 +350,8 @@ namespace AfbeeldingenUitzoeken.ViewModels
             else if (forceUpdate && CurrentIndex >= 0 && CurrentIndex < PicturesQueue.Count)
             {
                 SetCurrentPictureWithFullImage(PicturesQueue[CurrentIndex]);
-                OnItemNavigated?.Invoke(CurrentPicture);
+                if (CurrentPicture != null)
+                    OnItemNavigated?.Invoke(CurrentPicture);
                 // Debug
                 System.Diagnostics.Debug.WriteLine($"NavigateTo(force) executed: CurrentIndex={CurrentIndex}, Picture={CurrentPicture?.FileName}");
             }

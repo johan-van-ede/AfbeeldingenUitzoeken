@@ -50,31 +50,7 @@ public partial class App : System.Windows.Application
     /// </summary>
     private async Task CheckForUpdatesAsync(Window ownerWindow)
     {
-        try
-        {
-            var updateChecker = new UpdateChecker(UpdateServerUrl);
-            var (isUpdateAvailable, latestVersion, downloadUrl) = await updateChecker.CheckForUpdateAsync();
-            
-            if (isUpdateAvailable)
-            {
-                // Run on the UI thread
-                Current.Dispatcher.Invoke(() => {
-                    var updateWindow = new UpdateNotificationWindow(
-                        VersionInfo.VersionString,
-                        $"v{latestVersion}",
-                        downloadUrl);
-                    
-                    // Set the owner so the dialog is modal to the main window
-                    updateWindow.Owner = ownerWindow;
-                    updateWindow.ShowDialog();
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log the error but don't crash the application
-            Console.WriteLine($"Error checking for updates: {ex.Message}");
-        }
+    // Online update check removed; method now does nothing.
     }
 }
 
